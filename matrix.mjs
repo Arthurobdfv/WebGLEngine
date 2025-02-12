@@ -15,4 +15,8 @@ export class mat {
         values[i] = i % dimension == 0 ? 1 : 0;
        };
     }
+
+function asRedimention(newDimension){
+  return values.filter((x, idx) => (idx%newDimension) < newDimension);
+ }
 }
