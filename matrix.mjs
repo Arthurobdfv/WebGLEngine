@@ -47,7 +47,7 @@ asNewDimention(newDimension){
     copy[1] = -Math.sin(deg2rad * this.r[0]);
     copy[this.dimension] = Math.sin(deg2rad * this.r[0]);
     copy[this.dimension+1] = this.s[1]*Math.cos(deg2rad * this.r[0]);
-    copy[this.dimension+2] = this.s[2];
+    copy[2*this.dimension+2] = this.s[2];
     copy[this.dimension*(this.dimension-1)] = this.t[0];
     copy[this.dimension*((this.dimension-1)+1)] = this.t[1];
     copy[this.dimension*((this.dimension-1)+2)] = this.t[2];
