@@ -37,7 +37,7 @@ export function setRectangle(gl, x, y, width, height) {
   }
 
 
-  export function getRectangle(x, y, width, height){
+  export function getRectangle(x, y, width, height, sizeX = 1, sizeY = 1){
     var x1 = x;
     var x2 = x + width;
     var y1 = y;
