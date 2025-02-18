@@ -20,24 +20,16 @@ var vertexShaderSource = `#version 300 es
  
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
+in vec4 a_position;
+ 
+// A matrix to transform the positions by
 uniform mat4 u_transform;
-uniform vec2 u_resolution;
-in vec2 a_position;
+uniform mat4 u_camMvp;
  
 // all shaders have a main function
 void main() {
-  vec2 position = (u_transform * vec4(a_position, 1, 1)).xy;
-
-  // convert the position from pixels to 0.0 to 1.0
-  vec2 zeroToOne = position / u_resolution;
-
-  // convert from 0->1 to 0->2
-  vec2 zeroToTwo = zeroToOne * 2.0;
-
-  // convert from 0->2 to -1->+1 (clipspace)
-  vec2 clipSpace = zeroToTwo - 1.0;
-
-  gl_Position = vec4(clipSpace * vec2(1, -1), 0, 1);
+  // Multiply the position by the matrix.
+  gl_Position = u_camMvp * u_transform * a_position;
 }
 `
 import * as aux from './glContext.mjs';
@@ -58,7 +50,7 @@ var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, fragShaderS
 var program = aux.createProgram(context, vertexShader, fragShader);
 
 var positionAttributeLocation = context.getAttribLocation(program, "a_position");
-var uniform_ResolutionLocation = context.getUniformLocation(program, "u_resolution");
+var uniform_CameraMVPLocation = context.getUniformLocation(program, "u_camMvp");
 var uniform_ColorLocation = context.getUniformLocation(program, "u_color");
 var uniform_TransformLocation = context.getUniformLocation(program, "u_transform");
 
@@ -78,7 +70,7 @@ var positions = [
 
 
 var rectSize = [ 150, 75 ];
-var rectVerts = aux.getRectangle(100, 100, rectSize[0], rectSize[1]);
+var rectVerts = aux.getRectangle(100, 100, rectSize[0], rectSize[1], context.canvas.width, context.canvas.height);
 
 
 context.bufferData(context.ARRAY_BUFFER, new Float32Array(rectVerts), context.STATIC_DRAW);
@@ -109,7 +101,7 @@ var deg2rad = 0.017453;
 
 
 
-context.uniform2f(uniform_ResolutionLocation, context.canvas.width, context.canvas.height);
+//context.uniform2f(uniform_ResolutionLocation, context.canvas.width, context.canvas.height);
 // for (var ii = 0; ii < 50; ++ii) {
   context.uniform4f(uniform_ColorLocation, Math.sin(time++), Math.sin(time++ + randOffset), 0.5, 1);
   //   // Put a rectangle in the position buffer
@@ -146,10 +138,20 @@ var identity = new Float32Array([
 ])
 
 var mvp = new mat(4);
+var cameraMvp = new mat(4);
+cameraMvp.scale(1, 1,1);
+cameraMvp.position(0, 0);
+cameraMvp.rotation(0);
+cameraMvp.scale(2/context.canvas.width,-2/context.canvas.height);
+cameraMvp.rotation(0);
+cameraMvp.position(-1,1);
 mvp.scale(1, 1);
 mvp.position(0, 0);
 mvp.rotation(0);
+var test = cameraMvp.toMvp();
+var test2 = 1;
 function mainDraw(){
+  context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.toMvp());
   context.clearColor(0,0,0,0);
   context.clear(context.COLOR_BUFFER_BIT);
   console.log(`Test ${time}`);
