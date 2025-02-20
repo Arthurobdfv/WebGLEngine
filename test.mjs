@@ -177,10 +177,10 @@ function mainDraw(){
   //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
   t[0] = context.canvas.width/2;
-  t[1] = 0;
+  t[1] = context.canvas.height/2;
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
-  mvp.position(t[0], 1000000, 0);
+  mvp.position(t[0], t[1], 0);
   mvp.rotation(0,time++/3,0);
   console.log(time/10);
   var test = mvp.toMvp();
