@@ -58,9 +58,9 @@ asNewDimention(newDimension){
     
     copy[this.dimension*(this.dimension-1)-1] = this.fudge;
     copy[this.dimension*(this.dimension-1)] = this.t[0];
-    copy[this.dimension*((this.dimension-1)+1)] = this.t[1];
-    copy[this.dimension*((this.dimension-1)+2)] = this.t[2];
-    copy[this.dimension*((this.dimension-1)+3)] = 1;
+    copy[this.dimension*(this.dimension-1)+1] = this.t[1];
+    copy[this.dimension*(this.dimension-1)+2] = this.t[2];
+    copy[this.dimension*(this.dimension-1)+3] = 1;
     return copy;
   }
 
