@@ -37,17 +37,59 @@ export function setRectangle(gl, x, y, width, height) {
   }
 
 
-  export function getRectangle(x, y, width, height, sizeX = 1, sizeY = 1){
+  export function getRectangle(x, y, width, height, depth = 10){
     var x1 = x;
     var x2 = x + width;
     var y1 = y;
     var y2 = y + height;
     return new Float32Array([
-        x1, y1,
-        x2, y1,
-        x1, y2,
-        x1, y2,
-        x2, y1,
-        x2, y2,
+        x1, y1, 0,
+        x2, y1, 0,
+        x1, y2, 0,
+        x1, y2, 0,
+        x2, y1, 0,
+        x2, y2, 0,
+
+
+        // Left Side?
+        x1,y1,depth,
+        x1,y1,0,
+        x1,y2,depth,
+        x1,y2,depth,
+        x1,y1,0,
+        x1,y2,0,
+
+        // Right Side?
+        x2,y1,0,
+        x2,y1,depth,
+        x2,y2,depth,
+        x2,y1,0,
+        x2,y2,depth,
+        x2,y2,0,
+
+        // top side
+        x1, y2,depth,
+        x1, y2,0,
+        x2, y2,0,
+        x2, y2,0,
+        x2, y2,depth,
+        x1, y2,depth,
+
+        // Bottom Side
+        x1, y1,0,
+        x1, y1,depth,
+        x2, y1,0,
+        x1, y1,depth,
+        x2, y1,depth,
+        x2, y1,0,
+
+        x2, y2, depth,
+        x2, y1, depth,
+        x1, y2, depth,
+        x1, y2, depth,
+        x2, y1, depth,
+        x1, y1, depth,
+
+
      ]);
   }
