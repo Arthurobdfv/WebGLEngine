@@ -23,13 +23,14 @@ var vertexShaderSource = `#version 300 es
 in vec4 a_position;
  
 // A matrix to transform the positions by
+uniform mat4 u_projMatrix;
 uniform mat4 u_transform;
 uniform mat4 u_camMvp;
  
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = u_camMvp * u_transform * a_position;
+  gl_Position = u_projMatrix * u_camMvp * u_transform * a_position;
 }
 `
 import * as aux from './glContext.mjs';
@@ -44,6 +45,7 @@ console.log(canvas);
 
 var context = canvas.getContext('webgl2');
 console.log(context);
+context.enable(context.DEPTH_TEST);
 
 var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, vertexShaderSource);
 var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, fragShaderSource);
@@ -51,6 +53,7 @@ var program = aux.createProgram(context, vertexShader, fragShader);
 
 var positionAttributeLocation = context.getAttribLocation(program, "a_position");
 var uniform_CameraMVPLocation = context.getUniformLocation(program, "u_camMvp");
+var uniform_ProjMatLocation = context.getUniformLocation(program, "u_projMatrix");
 var uniform_ColorLocation = context.getUniformLocation(program, "u_color");
 var uniform_TransformLocation = context.getUniformLocation(program, "u_transform");
 
@@ -59,18 +62,18 @@ var positionBuffer = context.createBuffer();
 context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
 
 var positions = [
-  150   ,150,
-  150   ,175,
-  225 ,150,
+  150   ,150,   0,
+  150   ,175,   0,
+  225   ,150,   0,
 
-  150   ,175,
-  225 ,175,
-  225 ,150
+  150   ,175,   0,
+  225   ,175,   0,
+  225   ,150,   0
 ]
 
 
 var rectSize = [ 150, 75 ];
-var rectVerts = aux.getRectangle(100, 100, rectSize[0], rectSize[1], context.canvas.width, context.canvas.height);
+var rectVerts = aux.getRectangle(100, 100, rectSize[0], rectSize[1], 100);
 
 
 context.bufferData(context.ARRAY_BUFFER, new Float32Array(rectVerts), context.STATIC_DRAW);
@@ -78,7 +81,7 @@ var vao = context.createVertexArray();
 context.bindVertexArray(vao);
 context.enableVertexAttribArray(positionAttributeLocation);
 
-var size = 2;
+var size = 3;
 var type = context.FLOAT;
 var normalize = false;
 var stride = 0;
@@ -93,12 +96,13 @@ context.clear(context.COLOR_BUFFER_BIT);
 context.useProgram(program);
 context.bindVertexArray(vao);
 var primitiveType = context.TRIANGLES;
-var count = 6;
+var count = rectVerts.length;
 context.drawArrays(primitiveType, offset, count);
 var randOffset = Math.random(0,1) * 1000;
 var time = 0;
 var deg2rad = 0.017453;
 
+var cameraDepth = 1000;
 
 
 //context.uniform2f(uniform_ResolutionLocation, context.canvas.width, context.canvas.height);
@@ -137,34 +141,47 @@ var identity = new Float32Array([
   0,0,0,1
 ])
 
+var fieldOfView = 60;
+var aspect = context.canvas.width / context.canvas.height;
+var near = 10;
+var far = 100;
+var rangeInv = 1/(near-far);
+var projectionMatrix=  new mat(4);
+var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
+projectionMatrix.position(0,0,near*far* rangeInv *2);
+projectionMatrix.fudge = -1;
+projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
 cameraMvp.scale(1, 1,1);
 cameraMvp.position(0, 0);
 cameraMvp.rotation(0);
-cameraMvp.scale(2/context.canvas.width,-2/context.canvas.height);
+cameraMvp.scale(2/context.canvas.width,-2/context.canvas.height, 2/cameraDepth);
 cameraMvp.rotation(0);
 cameraMvp.position(-1,1);
 mvp.scale(1, 1);
-mvp.position(0, 0);
+mvp.position(0, 0, 0);
 mvp.rotation(0);
 var test = cameraMvp.toMvp();
 var test2 = 1;
 function mainDraw(){
+  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.toMvp());
   context.clearColor(0,0,0,0);
-  context.clear(context.COLOR_BUFFER_BIT);
+  context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   console.log(`Test ${time}`);
   context.useProgram(program);
   context.bindVertexArray(vao);
   context.drawArrays(primitiveType, offset, count);
   context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
-  t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
-  t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
+  //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
+  //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
+  t[0] = 200;
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
-  mvp.position(t[0], t[1]);
-  //mvp.rotation(time++);
+  mvp.position(t[0], t[1], 300);
+  mvp.rotation(0,time++/3,0);
+  console.log(time/10);
   var test = mvp.toMvp();
   context.uniformMatrix4fv(uniform_TransformLocation, false, mvp.toMvp());
   requestAnimationFrame(mainDraw)
