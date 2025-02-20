@@ -72,8 +72,8 @@ var positions = [
 ]
 
 
-var rectSize = [ 150, 75 ];
-var rectVerts = aux.getRectangle(100, 100, rectSize[0], rectSize[1], 100);
+var rectSize = [ 100, 100 ];
+var rectVerts = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
 
 
 context.bufferData(context.ARRAY_BUFFER, new Float32Array(rectVerts), context.STATIC_DRAW);
@@ -176,10 +176,11 @@ function mainDraw(){
   context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
   //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
-  t[0] = 200;
+  t[0] = context.canvas.width/2;
+  t[1] = 0;
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
-  mvp.position(t[0], t[1], 300);
+  mvp.position(t[0], 1000000, 0);
   mvp.rotation(0,time++/3,0);
   console.log(time/10);
   var test = mvp.toMvp();
