@@ -144,7 +144,7 @@ var identity = new Float32Array([
 var fieldOfView = 45;
 var aspect = context.canvas.width / context.canvas.height;
 var near = 1;
-var far = 50;
+var far = 2000;
 var rangeInv = 1/(near-far);
 var projectionMatrix=  new mat(4);
 var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
@@ -178,7 +178,7 @@ function mainDraw(){
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
   t[0] = context.canvas.width/2;
   t[1] = context.canvas.height/2;
-  t[2] = ((far-near)/2) + near;
+  t[2] = 0;
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
   mvp.position(t[0], t[1], t[2]);
