@@ -141,10 +141,10 @@ var identity = new Float32Array([
   0,0,0,1
 ])
 
-var fieldOfView = 60;
+var fieldOfView = 45;
 var aspect = context.canvas.width / context.canvas.height;
-var near = 10;
-var far = 100;
+var near = 1;
+var far = 50;
 var rangeInv = 1/(near-far);
 var projectionMatrix=  new mat(4);
 var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
@@ -158,7 +158,7 @@ cameraMvp.position(0, 0);
 cameraMvp.rotation(0);
 cameraMvp.scale(2/context.canvas.width,-2/context.canvas.height, 2/cameraDepth);
 cameraMvp.rotation(0);
-cameraMvp.position(-1,1);
+cameraMvp.position(-1,1, -1);
 mvp.scale(1, 1);
 mvp.position(0, 0, 0);
 mvp.rotation(0);
@@ -178,9 +178,10 @@ function mainDraw(){
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
   t[0] = context.canvas.width/2;
   t[1] = context.canvas.height/2;
+  t[2] = ((far-near)/2) + near;
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
-  mvp.position(t[0], t[1], 0);
+  mvp.position(t[0], t[1], t[2]);
   mvp.rotation(0,time++/3,0);
   console.log(time/10);
   var test = mvp.toMvp();
