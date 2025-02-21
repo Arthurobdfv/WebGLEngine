@@ -37,7 +37,23 @@ import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 
-
+function resizeCanvasToDisplaySize(canvas) {
+  // Lookup the size the browser is displaying the canvas in CSS pixels.
+  const displayWidth  = canvas.clientWidth;
+  const displayHeight = canvas.clientHeight;
+ 
+  // Check if the canvas is not the same size.
+  const needResize = canvas.width  !== displayWidth ||
+                     canvas.height !== displayHeight;
+ 
+  if (needResize) {
+    // Make the canvas the same size
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+  }
+ 
+  return needResize;
+}
 
 /** @type {HTMLCanvasElement} */
 var canvas = document.getElementById('canvas');
@@ -165,7 +181,9 @@ mvp.rotation(0);
 var test = cameraMvp.toMvp();
 var test2 = 1;
 function mainDraw(){
-  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
+ resizeCanvasToDisplaySize(context.canvas); 
+context.viewport(0,0, context.canvas.width, context.canvas.height);
+context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.toMvp());
   context.clearColor(0,0,0,0);
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
