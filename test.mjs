@@ -30,30 +30,14 @@ uniform mat4 u_camMvp;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = u_projMatrix * u_camMvp * u_transform * a_position;
+  gl_Position = u_projMatrix * u_transform * a_position;
 }
 `
 import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 
-function resizeCanvasToDisplaySize(canvas) {
-  // Lookup the size the browser is displaying the canvas in CSS pixels.
-  const displayWidth  = canvas.clientWidth;
-  const displayHeight = canvas.clientHeight;
- 
-  // Check if the canvas is not the same size.
-  const needResize = canvas.width  !== displayWidth ||
-                     canvas.height !== displayHeight;
- 
-  if (needResize) {
-    // Make the canvas the same size
-    canvas.width  = displayWidth;
-    canvas.height = displayHeight;
-  }
- 
-  return needResize;
-}
+
 
 /** @type {HTMLCanvasElement} */
 var canvas = document.getElementById('canvas');
@@ -118,7 +102,7 @@ var randOffset = Math.random(0,1) * 1000;
 var time = 0;
 var deg2rad = 0.017453;
 
-var cameraDepth = 1000;
+var cameraDepth = 400;
 
 
 //context.uniform2f(uniform_ResolutionLocation, context.canvas.width, context.canvas.height);
@@ -157,8 +141,7 @@ var identity = new Float32Array([
   0,0,0,1
 ])
 
-var fieldOfView = 45;
-var aspect = context.canvas.width / context.canvas.height;
+var fieldOfView = 60;
 var near = 1;
 var far = 2000;
 var rangeInv = 1/(near-far);
@@ -166,7 +149,33 @@ var projectionMatrix=  new mat(4);
 var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
 projectionMatrix.position(0,0,near*far* rangeInv *2);
 projectionMatrix.fudge = -1;
+var aspect = context.canvas.width / context.canvas.height;
 projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+
+
+function resizeCanvasToDisplaySize(canvas) {
+  // Lookup the size the browser is displaying the canvas in CSS pixels.
+  const displayWidth  = canvas.clientWidth;
+  const displayHeight = canvas.clientHeight;
+ 
+  // Check if the canvas is not the same size.
+  const needResize = canvas.width  !== displayWidth ||
+                     canvas.height !== displayHeight;
+ 
+  if (needResize) {
+    // Make the canvas the same size
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+    console.log(`Display Width: ${displayWidth}, Display Height: ${displayHeight}`);
+  }
+  var aspect = context.canvas.width / context.canvas.height;
+
+  projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+  return needResize;
+}
+
+
+
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
 cameraMvp.scale(1, 1,1);
@@ -174,34 +183,33 @@ cameraMvp.position(0, 0);
 cameraMvp.rotation(0);
 cameraMvp.scale(2/context.canvas.width,-2/context.canvas.height, 2/cameraDepth);
 cameraMvp.rotation(0);
-cameraMvp.position(-1,1, -1);
+cameraMvp.position(-1,1, 0);
 mvp.scale(1, 1);
 mvp.position(0, 0, 0);
 mvp.rotation(0);
 var test = cameraMvp.toMvp();
 var test2 = 1;
 function mainDraw(){
- resizeCanvasToDisplaySize(context.canvas); 
-context.viewport(0,0, context.canvas.width, context.canvas.height);
-context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
+  resizeCanvasToDisplaySize(context.canvas); 
+  context.viewport(0,0, context.canvas.width, context.canvas.height);
+  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.toMvp());
   context.clearColor(0,0,0,0);
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-  console.log(`Test ${time}`);
   context.useProgram(program);
   context.bindVertexArray(vao);
   context.drawArrays(primitiveType, offset, count);
   context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
   //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
-  t[0] = context.canvas.width/2;
-  t[1] = context.canvas.height/2;
-  t[2] = 0;
+  //t[0] = context.canvas.width/2;
+  //t[1] = context.canvas.height/2;
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
+  t[2] = -600;
+  t[1] = 100;
   mvp.position(t[0], t[1], t[2]);
   mvp.rotation(0,time++/3,0);
-  console.log(time/10);
   var test = mvp.toMvp();
   context.uniformMatrix4fv(uniform_TransformLocation, false, mvp.toMvp());
   requestAnimationFrame(mainDraw)
