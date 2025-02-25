@@ -190,8 +190,8 @@ mvp.rotation(0);
 var test = cameraMvp.toMvp();
 var test2 = 1;
 function mainDraw(){
-  resizeCanvasToDisplaySize(context.canvas); 
-  context.viewport(0,0, context.canvas.width, context.canvas.height);
+  resizeCanvasToDisplaySize(canvas); 
+  context.viewport(0,0, canvas.width, canvas.height);
   context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.toMvp());
   context.clearColor(0,0,0,0);
@@ -207,7 +207,7 @@ function mainDraw(){
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
   t[2] = -600;
-  t[1] = 100;
+  t[1] = -100;
   mvp.position(t[0], t[1], t[2]);
   mvp.rotation(0,time++/3,0);
   var test = mvp.toMvp();
