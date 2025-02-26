@@ -30,7 +30,7 @@ uniform mat4 u_camMvp;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = u_projMatrix * u_transform * a_position;
+  gl_Position = u_projMatrix * u_camMvp * u_transform * a_position;
 }
 `
 import * as aux from './glContext.mjs';
@@ -178,12 +178,10 @@ function resizeCanvasToDisplaySize(canvas) {
 
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
-cameraMvp.scale(1, 1,1);
-cameraMvp.position(0, 0);
+cameraMvp.scale(0, 0,0);
+cameraMvp.position(0, 10);
 cameraMvp.rotation(0);
-cameraMvp.scale(2/context.canvas.width,-2/context.canvas.height, 2/cameraDepth);
-cameraMvp.rotation(0);
-cameraMvp.position(-1,1, 0);
+cameraMvp.scale(1,1, 1);
 mvp.scale(1, 1);
 mvp.position(0, 0, 0);
 mvp.rotation(0);
@@ -193,7 +191,7 @@ function mainDraw(){
   resizeCanvasToDisplaySize(canvas); 
   context.viewport(0,0, canvas.width, canvas.height);
   context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
-  context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.toMvp());
+  context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   context.clearColor(0,0,0,0);
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   context.useProgram(program);
