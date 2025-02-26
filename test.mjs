@@ -179,7 +179,7 @@ function resizeCanvasToDisplaySize(canvas) {
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
 cameraMvp.scale(0, 0,0);
-cameraMvp.position(0, 10);
+cameraMvp.position(0,-210);
 cameraMvp.rotation(0);
 cameraMvp.scale(1,1, 1);
 mvp.scale(1, 1);
@@ -205,7 +205,7 @@ function mainDraw(){
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
   t[2] = -600;
-  t[1] = -100;
+  t[1] = 400;
   mvp.position(t[0], t[1], t[2]);
   mvp.rotation(0,time++/3,0);
   var test = mvp.toMvp();
