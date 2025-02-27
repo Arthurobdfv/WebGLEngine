@@ -121,8 +121,8 @@ projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
 
 function resizeCanvasToDisplaySize(canvas) {
   // Lookup the size the browser is displaying the canvas in CSS pixels.
-  const displayWidth  = canvas.clientWidth;
-  const displayHeight = canvas.clientHeight;
+  const displayWidth  = canvas.clientWidth * window.devicePixelRatio;;
+  const displayHeight = canvas.clientHeight * window.devicePixelRatio;;
  
   // Check if the canvas is not the same size.
   const needResize = canvas.width  !== displayWidth ||
@@ -157,8 +157,9 @@ mvp.rotation(0);
 var test = cameraMvp.toMvp();
 var test2 = 1;
 function mainDraw(){
-  resizeCanvasToDisplaySize(canvas); 
-  context.viewport(0,0, canvas.width, canvas.height);
+  if(resizeCanvasToDisplaySize(canvas)){
+    context.viewport(0,0, canvas.width, canvas.height);
+  } 
   context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   context.clearColor(0,0,0,0);
