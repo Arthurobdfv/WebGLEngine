@@ -5,13 +5,19 @@ var fragShaderSource = `#version 300 es
 // to pick one. highp is a good default. It means "high precision"
 precision highp float;
 uniform vec4 u_color;
+in vec3   v_normal;
+in vec3   v_pos; 
  
 // we need to declare an output for the fragment shader
 out vec4 outColor;
  
 void main() {
   // Just set the output to a constant reddish-purple
-  outColor = u_color;
+  vec3 lightPos = vec3(-100,200,-300);
+  float intensity = 0.3;
+  vec3 inverseLightDir = normalize(lightPos-v_pos);
+  float NdotL = dot(inverseLightDir, normalize(v_normal));
+  outColor = u_color * NdotL * intensity;
 }
 
 `
@@ -20,17 +26,24 @@ var vertexShaderSource = `#version 300 es
  
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
+precision highp float;
 in vec4 a_position;
+in vec3 a_normal;
  
 // A matrix to transform the positions by
 uniform mat4 u_projMatrix;
 uniform mat4 u_transform;
 uniform mat4 u_camMvp;
- 
+
+out vec3 v_normal;
+out vec3 v_pos; 
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
-  gl_Position = u_projMatrix * u_camMvp * u_transform * a_position;
+  mat4 mvp = u_projMatrix * u_camMvp * u_transform;
+  v_normal = mat3(u_transform) * a_normal;
+  gl_Position = mvp * a_position;
+  v_pos = gl_Position.xyz;
 }
 `
 import * as aux from './glContext.mjs';
@@ -53,6 +66,7 @@ var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, fragShaderS
 var program = aux.createProgram(context, vertexShader, fragShader);
 
 var positionAttributeLocation = context.getAttribLocation(program, "a_position");
+var normalAttributeLocation = context.getAttribLocation(program, "a_normal");
 var uniform_CameraMVPLocation = context.getUniformLocation(program, "u_camMvp");
 var uniform_ProjMatLocation = context.getUniformLocation(program, "u_projMatrix");
 var uniform_ColorLocation = context.getUniformLocation(program, "u_color");
@@ -80,17 +94,20 @@ function setupCube(attrib, data, context){
   context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
   context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
   context.bindVertexArray(attrib);
-  context.enableVertexAttribArray(positionAttributeLocation);
   var size = 3;
   var type = context.FLOAT;
   var normalize = false;
   var stride = 0;
   var offset = 0;
   var primitiveType = context.TRIANGLES;
-  var count = data.length;
-  context.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+  var count = 36;
+  context.vertexAttribPointer(positionAttributeLocation, size, type, normalize, 24, offset);
+  context.enableVertexAttribArray(positionAttributeLocation);
+
+  context.vertexAttribPointer(normalAttributeLocation, size, type, normalize, 24, 3*4);
+  context.enableVertexAttribArray(normalAttributeLocation);
   
-  objectsToDraw.push({attrib, offset,count, primitiveType})
+  objectsToDraw.push({attrib, offset:0,count, primitiveType})
 }
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
