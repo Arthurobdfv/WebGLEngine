@@ -58,88 +58,51 @@ var uniform_ColorLocation = context.getUniformLocation(program, "u_color");
 var uniform_TransformLocation = context.getUniformLocation(program, "u_transform");
 
 console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
-var positionBuffer = context.createBuffer();
-context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
 
-var positions = [
-  150   ,150,   0,
-  150   ,175,   0,
-  225   ,150,   0,
-
-  150   ,175,   0,
-  225   ,175,   0,
-  225   ,150,   0
-]
 
 
 var rectSize = [ 100, 100 ];
 var rectVerts = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
 
-
-context.bufferData(context.ARRAY_BUFFER, new Float32Array(rectVerts), context.STATIC_DRAW);
+var rectVerts2 = aux.getRectangle(-200,-200, 200, 150,150);
 var vao = context.createVertexArray();
-context.bindVertexArray(vao);
-context.enableVertexAttribArray(positionAttributeLocation);
+var vao2 = context.createVertexArray();
 
-var size = 3;
-var type = context.FLOAT;
-var normalize = false;
-var stride = 0;
-var offset = 0;
-context.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+
+var objectsToDraw = [];
+setupCube(vao, rectVerts, context);
+setupCube(vao2, rectVerts2, context);
+
+function setupCube(attrib, data, context){
+  var positionBuffer = context.createBuffer();
+  context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
+  context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
+  context.bindVertexArray(attrib);
+  context.enableVertexAttribArray(positionAttributeLocation);
+  var size = 3;
+  var type = context.FLOAT;
+  var normalize = false;
+  var stride = 0;
+  var offset = 0;
+  var primitiveType = context.TRIANGLES;
+  var count = data.length;
+  context.vertexAttribPointer(positionAttributeLocation, size, type, normalize, stride, offset);
+  
+  objectsToDraw.push({attrib, offset,count, primitiveType})
+}
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
 
 context.clearColor(0,0,0,0);
 context.clear(context.COLOR_BUFFER_BIT);
 
-context.useProgram(program);
-context.bindVertexArray(vao);
-var primitiveType = context.TRIANGLES;
-var count = rectVerts.length;
-context.drawArrays(primitiveType, offset, count);
 var randOffset = Math.random(0,1) * 1000;
 var time = 0;
 var deg2rad = 0.017453;
 
-var cameraDepth = 400;
 
-
-//context.uniform2f(uniform_ResolutionLocation, context.canvas.width, context.canvas.height);
-// for (var ii = 0; ii < 50; ++ii) {
   context.uniform4f(uniform_ColorLocation, Math.sin(time++), Math.sin(time++ + randOffset), 0.5, 1);
-  //   // Put a rectangle in the position buffer
-  //   aux.setRectangle(
-    //       context, aux.randomInt(300), aux.randomInt(300), aux.randomInt(300), aux.randomInt(300));
-    
-    //   // Set a random color.
-    //   context.uniform4f(uniform_ColorLocation, Math.random(), Math.random(), Math.random(), 1);
-    
-    //   // Draw the rectangle.
-    //   var primitiveType = context.TRIANGLES;
-    //   var offset = 0;
-    //   var count = 6;
-    //   context.drawArrays(primitiveType, offset, count);
-    // }
-  context.drawArrays(primitiveType, offset, count);
-  
-var t = [0, 0, 0];
-var angle = 0;
-var r = [0, 0, 0];
-var s = [1, 1, 1];
 
-var transformMat = new Float32Array([
-  Math.cos(angle*deg2rad)*s[0],-Math.sin(angle*deg2rad),0,0,
-  Math.sin(angle*deg2rad), Math.cos(angle*deg2rad)*s[1],0,0,
-  0,0,1*s[2],0,
-  t[0],t[1],t[2],1]);
-
-var identity = new Float32Array([
-  1,0,0,0,
-  0,1,0,0,
-  0,0,1,0,
-  0,0,0,1
-])
 
 var fieldOfView = 60;
 var near = 1;
@@ -151,6 +114,8 @@ projectionMatrix.position(0,0,near*far* rangeInv *2);
 projectionMatrix.fudge = -1;
 var aspect = context.canvas.width / context.canvas.height;
 projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+
+
 
 
 function resizeCanvasToDisplaySize(canvas) {
@@ -175,11 +140,14 @@ function resizeCanvasToDisplaySize(canvas) {
 }
 
 
-
+var t = [0, 0, 0];
+var angle = 0;
+var r = [0, 0, 0];
+var s = [1, 1, 1];
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
 cameraMvp.scale(0, 0,0);
-cameraMvp.position(0,-210);
+cameraMvp.position(0, 10);
 cameraMvp.rotation(0);
 cameraMvp.scale(1,1, 1);
 mvp.scale(1, 1);
@@ -195,9 +163,12 @@ function mainDraw(){
   context.clearColor(0,0,0,0);
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   context.useProgram(program);
-  context.bindVertexArray(vao);
-  context.drawArrays(primitiveType, offset, count);
-  context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
+  objectsToDraw.forEach(element => {
+    context.bindVertexArray(element.attrib);
+    context.drawArrays(element.primitiveType, element.offset, element.count);
+  });
+  //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
+  context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
   //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
   //t[0] = context.canvas.width/2;
@@ -205,7 +176,7 @@ function mainDraw(){
   r[0] = Math.sin(time++ * deg2rad);
   r[1] = Math.cos(time++ * deg2rad);
   t[2] = -600;
-  t[1] = 400;
+  t[1] = -100;
   mvp.position(t[0], t[1], t[2]);
   mvp.rotation(0,time++/3,0);
   var test = mvp.toMvp();
