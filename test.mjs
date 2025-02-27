@@ -41,6 +41,7 @@ import { mat } from './matrix.mjs';
 
 /** @type {HTMLCanvasElement} */
 var canvas = document.getElementById('canvas');
+var text = document.getElementById('canvas-size');
 console.log(canvas);
 
 var context = canvas.getContext('webgl2');
@@ -158,6 +159,7 @@ var test = cameraMvp.toMvp();
 var test2 = 1;
 function mainDraw(){
   if(resizeCanvasToDisplaySize(canvas)){
+   text.innerHTML = `Canvas size {canvas.width}, {canvas.height}`;
     context.viewport(0,0, canvas.width, canvas.height);
   } 
   context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
