@@ -69,10 +69,10 @@ var vao = context.createVertexArray();
 var vao2 = context.createVertexArray();
 
 
+var positionBuffer = context.createBuffer();
 var objectsToDraw = [];
 setupCube(vao, rectVerts, context);
 setupCube(vao2, rectVerts2, context);
-var positionBuffer = context.createBuffer();
 
 function setupCube(attrib, data, context){
   context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
