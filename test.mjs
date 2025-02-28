@@ -216,7 +216,7 @@ function mainDraw(){
   } 
   
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
+  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   context.clearColor(0.1,0.25,0.2,0);
   context.useProgram(program);
