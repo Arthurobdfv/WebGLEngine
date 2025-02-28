@@ -230,7 +230,7 @@ function mainDraw(){
   //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
   objectsToDraw[cube1].transform.position(300, -150, -600);
   objectsToDraw[cube1].transform.rotation(0,45,0);  
-  objectsToDraw[cube3].transform.position(0, -150, -600);
+  objectsToDraw[cube3].transform.position(150, -150, -600);
   objectsToDraw[cube3].transform.rotation(0,45,0);
   objectsToDraw[light].transform.position(300, -150 + Math.cos(timeDeg2Rad) * 300, -600 + Math.sin(timeDeg2Rad)* 300);
   var lightTransform = objectsToDraw[light].transform.getPos();
