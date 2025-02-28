@@ -1,158 +1,243 @@
-export const identity = new Float32Array([
-  1,0,0,0,
-  0,1,0,0,
-  0,0,1,0,
-  0,0,0,1
-])
 
-export const deg2rad = 0.017453;
-
-export class mat {
-  /**
-   *
-   */    
-  t = new Float32Array(3);
-  r = new Float32Array(3);
-  s = new Float32Array([ 1, 1, 1,]);
-  fudge = 0;
-
-  constructor(dimension) {
-     this.dimension = dimension;
-     this.values = new Float32Array(dimension * dimension);
-     for(let i = 0; i< (dimension*dimension); i++){
-      this.values[i] = i % (dimension+1) == 0 ? 1 : 0;
-     };
-  }
-
-asNewDimention(newDimension){
-    if(newDimension < this.dimension){
-      return this.values.slice(0,newDimension*this.dimension).filter((val,idx) => (idx%this.dimension) < newDimension);
-    }
-  }
-
-  position(x, y, z = 0){
-    this.t = new Float32Array([x, y, z]);
-  }
-
-  scale(x, y, z = 1){
-    this.s = new Float32Array([x, y, z]);
-  }
-
-  rotation(x = 0, y = 0 , z = 0 ){
-    this.r = new Float32Array([x, y, z]);
-  }
-
-  getPos(){
-     return new Float32Array([this.t[0], this.t[1], this.t[2]]);
-  }
-
-  toMvp(){
-    var copy = new Float32Array(this.values);
-    copy[0] = this.s[0] * Math.cos(deg2rad * this.r[1]) * Math.cos(deg2rad * this.r[2]);
-    copy[1] = Math.sin(deg2rad * this.r[2]);
-    copy[2] = -Math.sin(deg2rad * this.r[1]);
-    
-    copy[this.dimension] = -Math.sin(deg2rad*this.r[2])
-    copy[this.dimension+1] = this.s[1]*Math.cos(deg2rad * this.r[0]) * Math.cos(deg2rad*this.r[2]);
-    copy[this.dimension+2] = Math.sin(deg2rad * this.r[0]);
-    
-    copy[2*this.dimension] = Math.sin(deg2rad*this.r[1]);
-    copy[2*this.dimension+1] = -Math.sin(deg2rad*this.r[0]);
-    copy[2*this.dimension+2] = this.s[2] * Math.cos(deg2rad*this.r[0])* Math.cos(deg2rad*this.r[1]);
-    
-    copy[this.dimension*(this.dimension-1)-1] = this.fudge;
-    copy[this.dimension*(this.dimension-1)] = this.t[0];
-    copy[this.dimension*((this.dimension-1))+1] = this.t[1];
-    copy[this.dimension*((this.dimension-1))+2] = this.t[2];
-    //copy[this.dimension*((this.dimension-1))+3] = 1;
-    return copy;
-  }
-
-
-  inverse(){
-    var m = this.toMvp();
-      var m00 = m[0 * 4 + 0];
-      var m01 = m[0 * 4 + 1];
-      var m02 = m[0 * 4 + 2];
-      var m03 = m[0 * 4 + 3];
-      var m10 = m[1 * 4 + 0];
-      var m11 = m[1 * 4 + 1];
-      var m12 = m[1 * 4 + 2];
-      var m13 = m[1 * 4 + 3];
-      var m20 = m[2 * 4 + 0];
-      var m21 = m[2 * 4 + 1];
-      var m22 = m[2 * 4 + 2];
-      var m23 = m[2 * 4 + 3];
-      var m30 = m[3 * 4 + 0];
-      var m31 = m[3 * 4 + 1];
-      var m32 = m[3 * 4 + 2];
-      var m33 = m[3 * 4 + 3];
-      var tmp_0  = m22 * m33;
-      var tmp_1  = m32 * m23;
-      var tmp_2  = m12 * m33;
-      var tmp_3  = m32 * m13;
-      var tmp_4  = m12 * m23;
-      var tmp_5  = m22 * m13;
-      var tmp_6  = m02 * m33;
-      var tmp_7  = m32 * m03;
-      var tmp_8  = m02 * m23;
-      var tmp_9  = m22 * m03;
-      var tmp_10 = m02 * m13;
-      var tmp_11 = m12 * m03;
-      var tmp_12 = m20 * m31;
-      var tmp_13 = m30 * m21;
-      var tmp_14 = m10 * m31;
-      var tmp_15 = m30 * m11;
-      var tmp_16 = m10 * m21;
-      var tmp_17 = m20 * m11;
-      var tmp_18 = m00 * m31;
-      var tmp_19 = m30 * m01;
-      var tmp_20 = m00 * m21;
-      var tmp_21 = m20 * m01;
-      var tmp_22 = m00 * m11;
-      var tmp_23 = m10 * m01;
-  
-      var t0 = (tmp_0 * m11 + tmp_3 * m21 + tmp_4 * m31) -
-               (tmp_1 * m11 + tmp_2 * m21 + tmp_5 * m31);
-      var t1 = (tmp_1 * m01 + tmp_6 * m21 + tmp_9 * m31) -
-               (tmp_0 * m01 + tmp_7 * m21 + tmp_8 * m31);
-      var t2 = (tmp_2 * m01 + tmp_7 * m11 + tmp_10 * m31) -
-               (tmp_3 * m01 + tmp_6 * m11 + tmp_11 * m31);
-      var t3 = (tmp_5 * m01 + tmp_8 * m11 + tmp_11 * m21) -
-               (tmp_4 * m01 + tmp_9 * m11 + tmp_10 * m21);
-  
-      var d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
-  
-      return [
-        d * t0,
-        d * t1,
-        d * t2,
-        d * t3,
-        d * ((tmp_1 * m10 + tmp_2 * m20 + tmp_5 * m30) -
-             (tmp_0 * m10 + tmp_3 * m20 + tmp_4 * m30)),
-        d * ((tmp_0 * m00 + tmp_7 * m20 + tmp_8 * m30) -
-             (tmp_1 * m00 + tmp_6 * m20 + tmp_9 * m30)),
-        d * ((tmp_3 * m00 + tmp_6 * m10 + tmp_11 * m30) -
-             (tmp_2 * m00 + tmp_7 * m10 + tmp_10 * m30)),
-        d * ((tmp_4 * m00 + tmp_9 * m10 + tmp_10 * m20) -
-             (tmp_5 * m00 + tmp_8 * m10 + tmp_11 * m20)),
-        d * ((tmp_12 * m13 + tmp_15 * m23 + tmp_16 * m33) -
-             (tmp_13 * m13 + tmp_14 * m23 + tmp_17 * m33)),
-        d * ((tmp_13 * m03 + tmp_18 * m23 + tmp_21 * m33) -
-             (tmp_12 * m03 + tmp_19 * m23 + tmp_20 * m33)),
-        d * ((tmp_14 * m03 + tmp_19 * m13 + tmp_22 * m33) -
-             (tmp_15 * m03 + tmp_18 * m13 + tmp_23 * m33)),
-        d * ((tmp_17 * m03 + tmp_20 * m13 + tmp_23 * m23) -
-             (tmp_16 * m03 + tmp_21 * m13 + tmp_22 * m23)),
-        d * ((tmp_14 * m22 + tmp_17 * m32 + tmp_13 * m12) -
-             (tmp_16 * m32 + tmp_12 * m12 + tmp_15 * m22)),
-        d * ((tmp_20 * m32 + tmp_12 * m02 + tmp_19 * m22) -
-             (tmp_18 * m22 + tmp_21 * m32 + tmp_13 * m02)),
-        d * ((tmp_18 * m12 + tmp_23 * m32 + tmp_15 * m02) -
-             (tmp_22 * m32 + tmp_14 * m02 + tmp_19 * m12)),
-        d * ((tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12) -
-             (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02)),
-      ];  }
-
-
+var fragShaderSource = `#version 300 es
+ 
+// fragment shaders don't have a default precision so we need
+// to pick one. highp is a good default. It means "high precision"
+precision highp float;
+uniform vec4 u_color;
+in vec3   v_normal;
+in vec3   v_pos; 
+in vec4   v_vertexColor;
+in vec3   v_lightPos;
+ 
+// we need to declare an output for the fragment shader
+out vec4 outColor;
+ 
+void main() {
+  // Just set the output to a constant reddish-purple
+  float intensity = 0.3;
+  vec3 inverseLightDir = normalize(v_lightPos-v_pos);
+  float NdotL = dot(inverseLightDir, normalize(v_normal));
+  //outColor = vec4(u_color.xyz * NdotL * intensity,1);
+  //outColor = v_vertexColor * NdotL;
+//outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
+outColor = vec4(vec3( v_normal),1);
 }
+
+`
+
+var vertexShaderSource = `#version 300 es
+ 
+// an attribute is an input (in) to a vertex shader.
+// It will receive data from a buffer
+precision highp float;
+in vec4 a_position;
+in vec3 a_normal;
+in vec4 a_vertexColor;
+ 
+// A matrix to transform the positions by
+uniform mat4 u_projMatrix;
+uniform mat4 u_transform;
+uniform mat4 u_camMvp;
+uniform vec3 u_lightPos;
+
+out vec3 v_normal;
+out vec3 v_pos; 
+out vec4 v_vertexColor;
+out vec3 v_lightPos;
+// all shaders have a main function
+void main() {
+  // Multiply the position by the matrix.
+  mat4 mvp = u_projMatrix * u_camMvp * u_transform;
+  v_normal = mat3(u_transform) * a_normal;
+  gl_Position = mvp * a_position;
+  v_pos = gl_Position.xyz;
+  v_vertexColor = a_vertexColor;
+  v_lightPos = u_lightPos;
+}
+`
+import * as aux from './glContext.mjs';
+import './matrix.mjs';
+import { mat } from './matrix.mjs';
+
+
+
+/** @type {HTMLCanvasElement} */
+var canvas = document.getElementById('canvas');
+var text = document.getElementById('canvas-size');
+console.log(canvas);
+
+var context = canvas.getContext('webgl2');
+console.log(context);
+context.enable(context.DEPTH_TEST);
+
+var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, vertexShaderSource);
+var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, fragShaderSource);
+var program = aux.createProgram(context, vertexShader, fragShader);
+
+var positionAttributeLocation = context.getAttribLocation(program, "a_position");
+var normalAttributeLocation = context.getAttribLocation(program, "a_normal");
+var vertexColorAttributeLocation = context.getAttribLocation(program, "a_vertexColor");
+var uniform_LightPositionLocation = context.getUniformLocation(program, "u_lightPos");
+var uniform_CameraMVPLocation = context.getUniformLocation(program, "u_camMvp");
+var uniform_ProjMatLocation = context.getUniformLocation(program, "u_projMatrix");
+var uniform_ColorLocation = context.getUniformLocation(program, "u_color");
+var uniform_TransformLocation = context.getUniformLocation(program, "u_transform");
+
+console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
+
+
+
+var rectSize = [ 100, 100 ];
+
+var lightPos = [300, 150, -600];
+
+var rectVerts = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
+var rectVerts2 = aux.getRectangle(0,0, 200, 150,150);
+var lightVerts = aux.getRectangle(0,0,10,10,10);
+
+var vao = context.createVertexArray();
+var vaoTransform = new mat(4);
+vaoTransform.position(0,-250,-600);
+var vao2 = context.createVertexArray();
+var vao2Transform = new mat(4);
+vao2Transform.position(-200,-350, -600);
+var lightVao = context.createVertexArray();
+var lightTransform = new mat(4);
+
+
+
+
+
+var objectsToDraw = [];
+var cube1 = setupCube(vao, rectVerts, context, vaoTransform);
+var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform);
+var light = setupCube(lightVao, lightVerts, context, lightTransform);
+
+function setupCube(attrib, data, context, objTransform){
+  var positionBuffer = context.createBuffer();
+  context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
+  context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
+  context.bindVertexArray(attrib);
+  var size = 3;
+  var type = context.FLOAT;
+  var normalize = false;
+  var stride = 0;
+  var offset = 0;
+  var primitiveType = context.TRIANGLES;
+  var count = 36;
+  context.enableVertexAttribArray(positionAttributeLocation);
+  context.vertexAttribPointer(positionAttributeLocation, size, type, normalize, 36, offset);
+
+  context.enableVertexAttribArray(normalAttributeLocation);
+  context.vertexAttribPointer(normalAttributeLocation, size, type, normalize, 36, 3*4);
+
+  context.enableVertexAttribArray(vertexColorAttributeLocation);
+  context.vertexAttribPointer(vertexColorAttributeLocation,size, type, normalize, 36, 6*4);
+  
+  objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform})
+  return objectsToDraw.length-1;
+}
+context.viewport(0,0, context.canvas.width, context.canvas.height);
+
+
+context.clearColor(0,0,0,0);
+context.clear(context.COLOR_BUFFER_BIT);
+
+var randOffset = Math.random(0,1) * 1000;
+var time = 0;
+var deg2rad = 0.017453;
+
+
+  context.uniform4f(uniform_ColorLocation, Math.sin(time++), Math.sin(time++ + randOffset), 0.5, 1);
+
+
+var fieldOfView = 60;
+var near = 1;
+var far = 2000;
+var rangeInv = 1/(near-far);
+var projectionMatrix=  new mat(4);
+var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
+projectionMatrix.position(0,0,near*far* rangeInv *2);
+projectionMatrix.fudge = -1;
+var aspect = context.canvas.width / context.canvas.height;
+projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+
+
+
+
+function resizeCanvasToDisplaySize(canvas) {
+  // Lookup the size the browser is displaying the canvas in CSS pixels.
+  const displayWidth  = canvas.clientWidth * window.devicePixelRatio;;
+  const displayHeight = canvas.clientHeight * window.devicePixelRatio;;
+ 
+  // Check if the canvas is not the same size.
+  const needResize = canvas.width  !== displayWidth ||
+                     canvas.height !== displayHeight;
+ 
+  if (needResize) {
+    // Make the canvas the same size
+    canvas.width  = displayWidth;
+    canvas.height = displayHeight;
+    console.log(`Display Width: ${displayWidth}, Display Height: ${displayHeight}`);
+  }
+  var aspect = context.canvas.width / context.canvas.height;
+
+  projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+  return needResize;
+}
+
+
+var t = [0, 0, 0];
+var angle = 0;
+var r = [0, 0, 0];
+var s = [1, 1, 1];
+var mvp = new mat(4);
+var cameraMvp = new mat(4);
+cameraMvp.scale(0, 0,0);
+cameraMvp.position(300, -300);
+cameraMvp.rotation(0);
+cameraMvp.scale(1,1, 1);
+mvp.scale(1, 1);
+mvp.position(0, 0, 0);
+mvp.rotation(0);
+var test = cameraMvp.toMvp();
+var test2 = 1;
+function mainDraw(){
+  if(resizeCanvasToDisplaySize(canvas)){
+    text.innerHTML = `Canvas size ${canvas.width}, ${canvas.height}`;
+    context.viewport(0,0, canvas.width, canvas.height);
+  } 
+  
+  context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp());
+  context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
+  context.clearColor(0,0,0,0);
+  context.useProgram(program);
+  context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
+  //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
+  //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
+  //t[0] = context.canvas.width/2;
+  //t[1] = context.canvas.height/2;
+  var timeDeg2Rad = time++ * deg2rad;
+  text.innerHTML = timeDeg2Rad;
+  objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
+  objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
+  objectsToDraw[light].transform.position(300, -150 + Math.cos(timeDeg2Rad) * 300, -600 + Math.sin(timeDeg2Rad)* 300);
+  var lightTransform = objectsToDraw[light].transform.getPos();
+  console.log(`Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`)
+  context.uniform3f(uniform_LightPositionLocation,false, lightTransform[0], lightTransform[1], lightTransform[2]);
+  t[2] = -600;
+  t[1] = -100;
+  mvp.position(t[0], t[1], t[2]);
+  mvp.rotation(0,time++/3,0);
+  var test = mvp.toMvp();
+  //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
+  objectsToDraw.forEach((element, idx) => {
+    context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
+    context.bindVertexArray(element.attrib);
+    context.drawArrays(element.primitiveType, element.offset, element.count);
+  });
+  requestAnimationFrame(mainDraw)
+}
+mainDraw();
