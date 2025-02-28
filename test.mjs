@@ -21,8 +21,8 @@ void main() {
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
  // outColor = v_vertexColor;
 //outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
-outColor = vec4(vec3( v_normal),1);
-//outColor = vec4(vec3(NdotL),1);
+//outColor = vec4(vec3( v_normal),1);
+outColor = vec4(vec3(NdotL),1);
 }
 
 `
@@ -51,12 +51,12 @@ out vec3 v_lightDir;
 void main() {
   // Multiply the position by the matrix.
   mat4 mvp = u_projMatrix * u_camMvp * u_transform;
+  vec4 worldPos = u_transform * a_position;
   v_normal = mat3(u_transform) * a_normal;
   gl_Position = mvp * a_position;
-  v_pos = gl_Position.xyz;
+  v_pos = worldPos;
   v_vertexColor = a_vertexColor;
-  v_lightPos = u_lightPos;
-  v_lightDir = normalize(v_lightPos-v_pos);
+  v_lightDir = normalize(v_lightPos-worldPos);
 }
 `
 import * as aux from './glContext.mjs';
