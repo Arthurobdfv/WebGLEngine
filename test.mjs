@@ -19,9 +19,9 @@ void main() {
   float intensity = 0.3;
   float NdotL = dot(normalize(v_lightDir), normalize(v_normal));
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
-  outColor = v_vertexColor;
+ // outColor = v_vertexColor;
 //outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
-//outColor = vec4(vec3( v_normal),1);
+outColor = vec4(vec3( v_normal),1);
 //outColor = vec4(vec3(NdotL),1);
 }
 
