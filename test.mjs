@@ -17,7 +17,7 @@ out vec4 outColor;
 void main() {
   // Just set the output to a constant reddish-purple
   float intensity = 0.3;
-  float NdotL = dot(v_lightDir, normalize(v_normal));
+  float NdotL = dot(normalize(v_lightDir), normalize(v_normal));
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
   //outColor = v_vertexColor * NdotL;
 //outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
