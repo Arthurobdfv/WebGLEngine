@@ -1,67 +1,8 @@
-
-var fragShaderSource = `#version 300 es
- 
-// fragment shaders don't have a default precision so we need
-// to pick one. highp is a good default. It means "high precision"
-precision highp float;
-uniform vec4 u_color;
-in vec3   v_normal;
-in vec3   v_pos; 
-in vec4   v_vertexColor;
-in vec3   v_lightPos;
-in vec3   v_lightDir;
- 
-// we need to declare an output for the fragment shader
-out vec4 outColor;
- 
-void main() {
-  // Just set the output to a constant reddish-purple
-  float intensity = 0.3;
-  float NdotL = dot(normalize(v_lightDir), normalize(v_normal));
-  //outColor = vec4(u_color.xyz * NdotL * intensity,1);
- // outColor = v_vertexColor;
-//outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
-//outColor = vec4(vec3( v_normal),1);
-outColor = vec4(vec3(NdotL),1);
-}
-
-`
-
-var vertexShaderSource = `#version 300 es
- 
-// an attribute is an input (in) to a vertex shader.
-// It will receive data from a buffer
-precision highp float;
-in vec4 a_position;
-in vec3 a_normal;
-in vec4 a_vertexColor;
- 
-// A matrix to transform the positions by
-uniform mat4 u_projMatrix;
-uniform mat4 u_transform;
-uniform mat4 u_camMvp;
-uniform vec3 u_lightPos;
-
-out vec3 v_normal;
-out vec3 v_pos; 
-out vec4 v_vertexColor;
-out vec3 v_lightPos;
-out vec3 v_lightDir;
-// all shaders have a main function
-void main() {
-  // Multiply the position by the matrix.
-  mat4 mvp = u_projMatrix * u_camMvp * u_transform;
-  vec4 worldPos = u_transform * a_position;
-  v_normal = mat3(u_transform) * a_normal;
-  gl_Position = mvp * a_position;
-  v_pos = worldPos.xyz;
-  v_vertexColor = a_vertexColor;
-  v_lightDir = normalize(v_lightPos-worldPos.xyz);
-}
-`
 import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
+import './shaderConstants.mjs'
+import { basicLitFragShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 
 
 
@@ -74,18 +15,18 @@ var context = canvas.getContext('webgl2');
 console.log(context);
 context.enable(context.DEPTH_TEST);
 
-var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, vertexShaderSource);
-var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, fragShaderSource);
-var program = aux.createProgram(context, vertexShader, fragShader);
+var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
+var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
+var basicLitShaderProgram = aux.createbasicLitShaderProgram(context, vertexShader, fragShader);
 
-var positionAttributeLocation = context.getAttribLocation(program, "a_position");
-var normalAttributeLocation = context.getAttribLocation(program, "a_normal");
-var vertexColorAttributeLocation = context.getAttribLocation(program, "a_vertexColor");
-var uniform_LightPositionLocation = context.getUniformLocation(program, "u_lightPos");
-var uniform_CameraMVPLocation = context.getUniformLocation(program, "u_camMvp");
-var uniform_ProjMatLocation = context.getUniformLocation(program, "u_projMatrix");
-var uniform_ColorLocation = context.getUniformLocation(program, "u_color");
-var uniform_TransformLocation = context.getUniformLocation(program, "u_transform");
+var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
+var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
+var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
+var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
+var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
+var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
+var uniform_ColorLocation = context.getUniformLocation(basicLitShaderProgram, "u_color");
+var uniform_TransformLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_TRANSFORMATION_MAT);
 
 console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
 
@@ -95,9 +36,9 @@ var rectSize = [ 100, 100 ];
 
 var lightPos = [300, 150, -600];
 
-var rectVerts = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
-var rectVerts3 = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
-var rectVerts2 = aux.getRectangle(0,0, 200, 150,150);
+var rectVerts = aux.getRectangle(-50, -50, 100, 100, 100);
+var rectVerts3 = aux.getRectangle(-50, -50, 100, 100, 100);
+var rectVerts2 = aux.getRectangle(-100,-75, 200, 150,150);
 var lightVerts = aux.getRectangle(0,0,10,10,10);
 
 var vao = context.createVertexArray();
@@ -108,7 +49,7 @@ var vao3Transform = new mat(4);
 vao3Transform.position(0,0,0);
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
-vao2Transform.position(-200,-350, -600);
+
 var lightVao = context.createVertexArray();
 var lightTransform = new mat(4);
 
@@ -202,8 +143,8 @@ var r = [0, 0, 0];
 var s = [1, 1, 1];
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
-cameraMvp.position(400, 0);
-cameraMvp.rotation(0);
+cameraMvp.position(0, 200);
+cameraMvp.rotation(-25);
 mvp.scale(1, 1);
 mvp.position(0, 0, 0);
 mvp.rotation(0);
@@ -219,23 +160,23 @@ function mainDraw(){
   context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   context.clearColor(0.1,0.25,0.2,0);
-  context.useProgram(program);
+  context.usebasicLitShaderProgram(basicLitShaderProgram);
   context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
   //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
   //t[0] = context.canvas.width/2;
   //t[1] = context.canvas.height/2;
-  var timeDeg2Rad = time++ * deg2rad*.5;
+  var timeDeg2Rad = time++ * deg2rad;
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
   //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
-  objectsToDraw[cube1].transform.position(300, -150, -600);
-  objectsToDraw[cube1].transform.rotation(0,45,0);  
-  objectsToDraw[cube3].transform.position(150, -150, -600);
-  objectsToDraw[cube3].transform.rotation(0,45,0);
-  objectsToDraw[light].transform.position(300, -150 + Math.cos(timeDeg2Rad) * 300, -600 + Math.sin(timeDeg2Rad)* 300);
+  objectsToDraw[cube1].transform.position(-150, 0, -300);
+  objectsToDraw[cube1].transform.rotation(0,45+timeDeg2Rad,0);  
+  objectsToDraw[cube3].transform.position(200, 0, -300);
+  objectsToDraw[cube3].transform.rotation(0,45+timeDeg2Rad*50,0);
+  objectsToDraw[light].transform.position(0, 100 + Math.cos(timeDeg2Rad) * 100, -200 + Math.sin(timeDeg2Rad)* 100);
   var lightTransform = objectsToDraw[light].transform.getPos();
   text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
-  context.uniform3f(uniform_LightPositionLocation,false, lightTransform[0], lightTransform[1], lightTransform[2]);
+  context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
   t[2] = -600;
   t[1] = -100;
   mvp.position(t[0], t[1], t[2]);
