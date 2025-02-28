@@ -99,10 +99,10 @@ var lightVerts = aux.getRectangle(0,0,10,10,10);
 
 var vao = context.createVertexArray();
 var vaoTransform = new mat(4);
-vaoTransform.position(0,-250,-600);
+vaoTransform.position(0,0,0);
 var vao3 = context.createVertexArray();
 var vao3Transform = new mat(4);
-vao3Transform.position(0,-250,-600);
+vao3Transform.position(0,0,0);
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 vao2Transform.position(-200,-350, -600);
