@@ -42,6 +42,10 @@ asNewDimention(newDimension){
     this.r = new Float32Array([x, y, z]);
   }
 
+  getPos(){
+     return new Float32Array([this.t[0], this.t[1], this.t[0]]);
+  }
+
   toMvp(){
     var copy = new Float32Array(this.values);
     copy[0] = this.s[0] * Math.cos(deg2rad * this.r[1]) * Math.cos(deg2rad * this.r[2]);
