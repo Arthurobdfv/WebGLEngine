@@ -30,7 +30,7 @@ var vertexShaderSource = `#version 300 es
 // It will receive data from a buffer
 precision highp float;
 in vec4 a_position;
-in vec4 a_normal;
+in vec3 a_normal;
 in vec4 a_vertexColor;
  
 // A matrix to transform the positions by
@@ -45,7 +45,7 @@ out vec4 v_vertexColor;
 void main() {
   // Multiply the position by the matrix.
   mat4 mvp = u_projMatrix * u_camMvp * u_transform;
-  v_normal = (u_transform * a_normal).xyz;
+  v_normal = mat3(u_transform) * a_normal;
   gl_Position = mvp * a_position;
   v_pos = gl_Position.xyz;
   v_vertexColor = a_vertexColor;
