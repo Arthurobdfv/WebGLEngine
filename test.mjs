@@ -9,6 +9,7 @@ in vec3   v_normal;
 in vec3   v_pos; 
 in vec4   v_vertexColor;
 in vec3   v_lightPos;
+in vec3   v_lightDir;
  
 // we need to declare an output for the fragment shader
 out vec4 outColor;
@@ -16,13 +17,12 @@ out vec4 outColor;
 void main() {
   // Just set the output to a constant reddish-purple
   float intensity = 0.3;
-  vec3 inverseLightDir = normalize(v_lightPos-v_pos);
-  float NdotL = dot(inverseLightDir, normalize(v_normal));
+  float NdotL = dot(v_lightDir, normalize(v_normal));
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
   //outColor = v_vertexColor * NdotL;
 //outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
-outColor = vec4(vec3( v_normal),1);
-//outColor = vec4(vec3(NdotL),1);
+//outColor = vec4(vec3( v_normal),1);
+outColor = vec4(vec3(NdotL),1);
 }
 
 `
@@ -46,6 +46,7 @@ out vec3 v_normal;
 out vec3 v_pos; 
 out vec4 v_vertexColor;
 out vec3 v_lightPos;
+out vec3 v_lightDir;
 // all shaders have a main function
 void main() {
   // Multiply the position by the matrix.
@@ -55,6 +56,7 @@ void main() {
   v_pos = gl_Position.xyz;
   v_vertexColor = a_vertexColor;
   v_lightPos = u_lightPos;
+  v_lightDir = normalize(v_lightPos-v_pos);
 }
 `
 import * as aux from './glContext.mjs';
