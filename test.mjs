@@ -19,7 +19,7 @@ void main() {
   vec3 inverseLightDir = normalize(lightPos-v_pos);
   float NdotL = dot(inverseLightDir, normalize(v_normal));
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
-  outColor = v_vertexColor;
+  outColor = v_vertexColor * NdotL;
 }
 
 `
