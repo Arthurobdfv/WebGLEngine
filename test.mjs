@@ -17,7 +17,7 @@ void main() {
   float intensity = 0.3;
   vec3 inverseLightDir = normalize(lightPos-v_pos);
   float NdotL = dot(inverseLightDir, normalize(v_normal));
-  outColor = u_color * NdotL * intensity;
+  outColor = vec4(u_color.xyz * NdotL * intensity,1);
 }
 
 `
@@ -28,7 +28,7 @@ var vertexShaderSource = `#version 300 es
 // It will receive data from a buffer
 precision highp float;
 in vec4 a_position;
-in vec3 a_normal;
+in vec4 a_normal;
  
 // A matrix to transform the positions by
 uniform mat4 u_projMatrix;
