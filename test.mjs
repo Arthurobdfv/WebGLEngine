@@ -21,7 +21,7 @@ void main() {
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
   //outColor = v_vertexColor * NdotL;
 //outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
-outColor = vec4(vec3(NdotL),1);
+outColor = vec4(vec3( v_normal),1);
 }
 
 `
@@ -224,7 +224,7 @@ function mainDraw(){
   objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
   objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
   objectsToDraw[light].transform.position(300, -150 + Math.cos(timeDeg2Rad) * 300, -600 + Math.sin(timeDeg2Rad)* 300);
-  var lightTransform = objectsToDraw[cube2].transform.getPos();
+  var lightTransform = objectsToDraw[light].transform.getPos();
   console.log(`Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`)
   context.uniform3f(uniform_LightPositionLocation,false, lightTransform[0], lightTransform[1], lightTransform[2]);
   t[2] = -600;
@@ -233,8 +233,8 @@ function mainDraw(){
   mvp.rotation(0,time++/3,0);
   var test = mvp.toMvp();
   //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
-  objectsToDraw.forEach(element => {
-    context.uniformMatrix4fv(uniform_TransformLocation, false, element.transform.toMvp());
+  objectsToDraw.forEach((element, idx) => {
+    context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
     context.bindVertexArray(element.attrib);
     context.drawArrays(element.primitiveType, element.offset, element.count);
   });
