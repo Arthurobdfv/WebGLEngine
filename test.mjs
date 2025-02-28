@@ -223,8 +223,7 @@ function mainDraw(){
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
   //t[0] = context.canvas.width/2;
   //t[1] = context.canvas.height/2;
-  var timeDeg2Rad = time++ * deg2rad;
-  text.innerHTML = timeDeg2Rad;
+  var timeDeg2Rad = time++ * deg2rad*.5;
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
   //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
   objectsToDraw[cube1].transform.position(300, -150, -600);
@@ -233,7 +232,7 @@ function mainDraw(){
   objectsToDraw[cube3].transform.rotation(0,45,0);
   objectsToDraw[light].transform.position(300, -150 + Math.cos(timeDeg2Rad) * 300, -600 + Math.sin(timeDeg2Rad)* 300);
   var lightTransform = objectsToDraw[light].transform.getPos();
-  console.log(`Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`)
+  text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
   context.uniform3f(uniform_LightPositionLocation,false, lightTransform[0], lightTransform[1], lightTransform[2]);
   t[2] = -600;
   t[1] = -100;
