@@ -54,7 +54,7 @@ void main() {
   vec4 worldPos = u_transform * a_position;
   v_normal = mat3(u_transform) * a_normal;
   gl_Position = mvp * a_position;
-  v_pos = worldPos;
+  v_pos = worldPos.xyz;
   v_vertexColor = a_vertexColor;
   v_lightDir = normalize(v_lightPos-worldPos);
 }
