@@ -43,12 +43,12 @@ export function setRectangle(gl, x, y, width, height) {
     var y1 = y;
     var y2 = y + height;
     return new Float32Array([
-        x1, y1, 0,       0, 0, 1,   1, 0, 0,
-        x2, y1, 0,       0, 0, 1,   1, 0, 0,
-        x1, y2, 0,       0, 0, 1,   1, 0, 0,
-        x1, y2, 0,       0, 0, 1,   1, 0, 0,
-        x2, y1, 0,       0, 0, 1,   1, 0, 0,
-        x2, y2, 0,       0, 0, 1,   1, 0, 0,
+        x1, y1, 0,       0, 0,-1,   1, 0, 0,
+        x2, y1, 0,       0, 0,-1,   1, 0, 0,
+        x1, y2, 0,       0, 0,-1,   1, 0, 0,
+        x1, y2, 0,       0, 0,-1,   1, 0, 0,
+        x2, y1, 0,       0, 0,-1,   1, 0, 0,
+        x2, y2, 0,       0, 0,-1,   1, 0, 0,
 
 
         // Left Side?
@@ -83,12 +83,12 @@ export function setRectangle(gl, x, y, width, height) {
         x2, y1,depth,    0,-1, 0,   0, 0, 1,
         x2, y1,0,        0,-1, 0,   1, 0, 0,
 
-        x2, y2, depth,   0, 0,-1,   0, 0, 1,
-        x2, y1, depth,   0, 0,-1,   0, 0, 1,
-        x1, y2, depth,   0, 0,-1,   0, 0, 1,
-        x1, y2, depth,   0, 0,-1,   0, 0, 1,
-        x2, y1, depth,   0, 0,-1,   0, 0, 1,
-        x1, y1, depth,   0, 0,-1,   0, 0, 1
+        x2, y2, depth,   0, 0, 1,   0, 0, 1,
+        x2, y1, depth,   0, 0, 1,   0, 0, 1,
+        x1, y2, depth,   0, 0, 1,   0, 0, 1,
+        x1, y2, depth,   0, 0, 1,   0, 0, 1,
+        x2, y1, depth,   0, 0, 1,   0, 0, 1,
+        x1, y1, depth,   0, 0, 1,   0, 0, 1
 
 
      ]);
