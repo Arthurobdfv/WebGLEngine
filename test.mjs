@@ -21,8 +21,8 @@ void main() {
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
   //outColor = v_vertexColor * NdotL;
 //outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
-//outColor = vec4(vec3( v_normal),1);
-outColor = vec4(vec3(NdotL),1);
+outColor = vec4(vec3( v_normal),1);
+//outColor = vec4(vec3(NdotL),1);
 }
 
 `
@@ -200,7 +200,7 @@ var r = [0, 0, 0];
 var s = [1, 1, 1];
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
-cameraMvp.position(400, -400);
+cameraMvp.position(400, -200);
 cameraMvp.rotation(0);
 mvp.scale(1, 1);
 mvp.position(0, 0, 0);
