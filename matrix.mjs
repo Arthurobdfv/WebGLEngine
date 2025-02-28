@@ -14,6 +14,7 @@ export class mat {
   t = new Float32Array(3);
   r = new Float32Array(3);
   s = new Float32Array([ 1, 1, 1,]);
+  last = 1;
   fudge = 0;
 
   constructor(dimension) {
@@ -43,10 +44,10 @@ asNewDimention(newDimension){
   }
 
   getPos(){
-     return new Float32Array([this.t[0], this.t[1], this.t[0]]);
+     return new Float32Array([this.t[0], this.t[1], this.t[2]]);
   }
 
-  toMvp(){
+  toMvp(last = 1){
     var copy = new Float32Array(this.values);
     copy[0] = this.s[0] * Math.cos(deg2rad * this.r[1]) * Math.cos(deg2rad * this.r[2]);
     copy[1] = Math.sin(deg2rad * this.r[2]);
@@ -64,6 +65,7 @@ asNewDimention(newDimension){
     copy[this.dimension*(this.dimension-1)] = this.t[0];
     copy[this.dimension*((this.dimension-1))+1] = this.t[1];
     copy[this.dimension*((this.dimension-1))+2] = this.t[2];
+    copy[this.dimension*this.dimension-1]=last;
     //copy[this.dimension*((this.dimension-1))+3] = 1;
     return copy;
   }
