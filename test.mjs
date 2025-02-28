@@ -166,7 +166,7 @@ var s = [1, 1, 1];
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
 cameraMvp.scale(0, 0,0);
-cameraMvp.position(0, 10);
+cameraMvp.position(1000, -1010);
 cameraMvp.rotation(0);
 cameraMvp.scale(1,1, 1);
 mvp.scale(1, 1);
