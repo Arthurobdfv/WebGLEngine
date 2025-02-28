@@ -41,7 +41,7 @@ out vec3 v_pos;
 void main() {
   // Multiply the position by the matrix.
   mat4 mvp = u_projMatrix * u_camMvp * u_transform;
-  v_normal = mat3(u_transform) * a_normal;
+  v_normal = (u_transform * a_normal).xyz;
   gl_Position = mvp * a_position;
   v_pos = gl_Position.xyz;
 }
