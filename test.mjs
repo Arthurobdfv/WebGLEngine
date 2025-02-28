@@ -100,6 +100,9 @@ var lightVerts = aux.getRectangle(0,0,10,10,10);
 var vao = context.createVertexArray();
 var vaoTransform = new mat(4);
 vaoTransform.position(0,-250,-600);
+var vao3 = context.createVertexArray();
+var vao3Transform = new mat(4);
+vao3Transform.position(0,-250,-600);
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 vao2Transform.position(-200,-350, -600);
@@ -113,6 +116,7 @@ var lightTransform = new mat(4);
 var objectsToDraw = [];
 var cube1 = setupCube(vao, rectVerts, context, vaoTransform);
 var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform);
+var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform);
 var light = setupCube(lightVao, lightVerts, context, lightTransform);
 
 function setupCube(attrib, data, context, objTransform){
@@ -225,7 +229,9 @@ function mainDraw(){
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
   //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
   objectsToDraw[cube1].transform.position(300, -150, -600);
-  objectsToDraw[cube1].transform.rotation(0,45,0);
+  objectsToDraw[cube1].transform.rotation(0,45,0);  
+  objectsToDraw[cube3].transform.position(0, -150, -600);
+  objectsToDraw[cube3].transform.rotation(0,45,0);
   objectsToDraw[light].transform.position(300, -150 + Math.cos(timeDeg2Rad) * 300, -600 + Math.sin(timeDeg2Rad)* 300);
   var lightTransform = objectsToDraw[light].transform.getPos();
   console.log(`Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`)
