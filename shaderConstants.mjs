@@ -1,9 +1,10 @@
-export const ATTRIB_POSITION = "a_position";
-export const ATTRIB_NORMAL = "a_normal";
-export const ATTRIB_VERTEX_COLOR = "a_vertexColor";
-export const UNIFORM_PROJECTION_MAT = "u_projMatrix";
-export const UNIFORM_CAMERA_MAT = "u_camMvp";
-export const UNIFORM_TRANSFORMATION_MAT = "u_transform";
+
+export const ATTRIB_POSITION = `a_position`;
+export const ATTRIB_NORMAL = `a_normal`;
+export const ATTRIB_VERTEX_COLOR = `a_vertexColor`;
+export const UNIFORM_PROJECTION_MAT = `u_projMatrix`;
+export const UNIFORM_CAMERA_MAT = `u_camMvp`;
+export const UNIFORM_TRANSFORMATION_MAT = `u_transform`;
 
 
 export const basicLitFragShaderSource = `#version 300 es
@@ -32,9 +33,9 @@ outColor = vec4(vec3(NdotL * v_vertexColor.xyz),1);
 //outColor = vec4(vec3(NdotL),1);
 }
 
-`
+`;
 
-export const  basicLitVertexShaderSource = `#version 300 es
+export const basicLitVertexShaderSource = `#version 300 es
  
 // an attribute is an input (in) to a vertex shader.
 // It will receive data from a buffer
@@ -66,4 +67,4 @@ void main() {
   v_lightPos = u_lightPos;
   v_lightDir = normalize(u_lightPos-worldPos.xyz);
 }
-`
+`;

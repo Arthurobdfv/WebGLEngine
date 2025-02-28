@@ -1,8 +1,8 @@
 import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
-import './shaderConstants.mjs'
-import { basicLitFragShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
+import './shaderConstants.mjs';
+import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 
 
 
@@ -17,7 +17,7 @@ context.enable(context.DEPTH_TEST);
 
 var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
 var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
-var basicLitShaderProgram = aux.createbasicLitShaderProgram(context, vertexShader, fragShader);
+var basicLitShaderProgram = aux.createProgram(context, vertexShader, fragShader);
 
 var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
 var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
@@ -160,7 +160,7 @@ function mainDraw(){
   context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
   context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   context.clearColor(0.1,0.25,0.2,0);
-  context.usebasicLitShaderProgram(basicLitShaderProgram);
+  context.useProgram(basicLitShaderProgram);
   context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
   //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
   //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
