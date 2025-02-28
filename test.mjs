@@ -94,6 +94,7 @@ var rectSize = [ 100, 100 ];
 var lightPos = [300, 150, -600];
 
 var rectVerts = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
+var rectVerts3 = aux.getRectangle(0, 0, rectSize[0], rectSize[1], 100);
 var rectVerts2 = aux.getRectangle(0,0, 200, 150,150);
 var lightVerts = aux.getRectangle(0,0,10,10,10);
 
