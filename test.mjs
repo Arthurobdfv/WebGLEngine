@@ -200,7 +200,7 @@ var r = [0, 0, 0];
 var s = [1, 1, 1];
 var mvp = new mat(4);
 var cameraMvp = new mat(4);
-cameraMvp.position(400, -200);
+cameraMvp.position(400, 0);
 cameraMvp.rotation(0);
 mvp.scale(1, 1);
 mvp.position(0, 0, 0);
