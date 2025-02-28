@@ -56,7 +56,7 @@ void main() {
   gl_Position = mvp * a_position;
   v_pos = worldPos.xyz;
   v_vertexColor = a_vertexColor;
-  v_lightDir = normalize(v_lightPos-worldPos);
+  v_lightDir = normalize(v_lightPos-worldPos.xyz);
 }
 `
 import * as aux from './glContext.mjs';
