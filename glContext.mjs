@@ -93,3 +93,52 @@ export function setRectangle(gl, x, y, width, height) {
 
      ]);
   }
+
+  export function getCubeUVCoords(){
+    var stepX = 0.33;
+    var stepY = 0.25;
+    return new Float32Array(
+        stepX,      0,
+        stepX,      stepY,
+        2*stepX,    0,
+        stepX,      stepY,
+        2*stepX,    stepY,
+        2*stepX,    0,
+
+        stepX,      0       +stepY,
+        stepX,      stepY   +stepY,
+        2*stepX,    0       +stepY,
+        stepX,      stepY   +stepY,
+        2*stepX,    stepY   +stepY,
+        2*stepX,    0       +stepY,
+
+        stepX,      0       +2*stepY,
+        stepX,      stepY   +2*stepY,
+        2*stepX,    0       +2*stepY,
+        stepX,      stepY   +2*stepY,
+        2*stepX,    stepY   +2*stepY,
+        2*stepX,    0       +2*stepY,
+
+        stepX,      0       +3*stepY,
+        stepX,      stepY   +3*stepY,
+        2*stepX,    0       +3*stepY,
+        stepX,      stepY   +3*stepY,
+        2*stepX,    stepY   +3*stepY,
+        2*stepX,    0       +3*stepY,
+
+        stepX + stepX,      0       +2*stepY,
+        stepX + stepX,      stepY   +2*stepY,
+        2*stepX + stepX,    0       +2*stepY,
+        stepX + stepX,      stepY   +2*stepY,
+        2*stepX + stepX,    stepY   +2*stepY,
+        2*stepX + stepX,    0       +2*stepY,
+
+        stepX - stepX,      0       +2*stepY,
+        stepX - stepX,      stepY   +2*stepY,
+        2*stepX - stepX,    0       +2*stepY,
+        stepX - stepX,      stepY   +2*stepY,
+        2*stepX - stepX,    stepY   +2*stepY,
+        2*stepX - stepX,    0       +2*stepY,
+
+    )
+  }
