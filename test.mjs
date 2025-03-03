@@ -2,7 +2,7 @@ import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 import './shaderConstants.mjs';
-import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
+import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 
 
 
@@ -22,6 +22,7 @@ var basicLitShaderProgram = aux.createProgram(context, vertexShader, fragShader)
 var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
 var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
 var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
+var texCoordAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_TEXTURE_COORD);
 var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
 var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
 var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
@@ -86,6 +87,17 @@ function setupCube(attrib, data, context, objTransform){
   
   objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform})
   return objectsToDraw.length-1;
+}
+
+function appendTextureToCube(cubeIndex){
+  var cubeToChange = objectsToDraw[cubeIndex];
+  var cubeUVCoords = aux.getCubeUVCoords();
+  var coordBuffer = context.createBuffer();
+  context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
+  context.bufferData(cubeUVCoords);
+
+  context.enableVertexAttribArray(texCoordAttributeLocation);
+  context.vertexAttribPointer(texCoordAttributeLocation, 2, context.FLOAT, true, 0,0);
 }
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
