@@ -2,7 +2,7 @@ import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 import './shaderConstants.mjs';
-import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
+import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 
 
 
@@ -14,15 +14,21 @@ console.log(canvas);
 var context = canvas.getContext('webgl2');
 console.log(context);
 context.enable(context.DEPTH_TEST);
+var activeProgram = null;
 
 var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
 var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
 var basicLitShaderProgram = aux.createProgram(context, vertexShader, fragShader);
 
+
+var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
+var fragTexShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
+var texturedShaderProgram = aux.createProgram(context, vertexTexShader, fragTexShader);
+
 var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
 var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
 var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
-var texCoordAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_TEXTURE_COORD);
+var texCoordAttributeLocation = context.getAttribLocation(texturedShaderProgram, ATTRIB_TEXTURE_COORD);
 var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
 var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
 var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
@@ -32,7 +38,10 @@ var uniform_TransformLocation = context.getUniformLocation(basicLitShaderProgram
 console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
 
 
-
+function switchProgram(newProgram){
+  context.useProgram(newProgram);
+  activeProgram = newProgram;
+}
 var rectSize = [ 100, 100 ];
 
 var lightPos = [300, 150, -600];
@@ -48,8 +57,6 @@ vaoTransform.position(0,0,0);
 var vao3 = context.createVertexArray();
 var vao3Transform = new mat(4);
 vao3Transform.position(0,0,0);
-var vao2 = context.createVertexArray();
-var vao2Transform = new mat(4);
 
 var lightVao = context.createVertexArray();
 var lightTransform = new mat(4);
@@ -59,12 +66,22 @@ var lightTransform = new mat(4);
 
 
 var objectsToDraw = [];
-var cube1 = setupCube(vao, rectVerts, context, vaoTransform);
-var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform);
-var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform);
-var light = setupCube(lightVao, lightVerts, context, lightTransform);
+var cube1 = setupCube(vao, rectVerts, context, vaoTransform, basicLitShaderProgram);
+var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, basicLitShaderProgram);
+var light = setupCube(lightVao, lightVerts, context, lightTransform, basicLitShaderProgram);
 
-function setupCube(attrib, data, context, objTransform){
+
+switchProgram(texturedShaderProgram);
+
+var vao2 = context.createVertexArray();
+var vao2Transform = new mat(4);
+var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, basicLitShaderProgram);
+appendTextureToCube(cube2,'./textures/brick 10 - 128x128.png');
+
+
+
+
+function setupCube(attrib, data, context, objTransform, program){
   var positionBuffer = context.createBuffer();
   context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
   context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
@@ -85,19 +102,43 @@ function setupCube(attrib, data, context, objTransform){
   context.enableVertexAttribArray(vertexColorAttributeLocation);
   context.vertexAttribPointer(vertexColorAttributeLocation,size, type, normalize, 36, 6*4);
   
-  objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform})
+  objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform, program})
   return objectsToDraw.length-1;
 }
 
-function appendTextureToCube(cubeIndex){
+function appendTextureToCube(cubeIndex, textureSource){
+  var img = new Image();
+  img.onload = function() { console.log("Loaded Image!"); }
+  img.src = textureSource;
+
   var cubeToChange = objectsToDraw[cubeIndex];
   var cubeUVCoords = aux.getCubeUVCoords();
   var coordBuffer = context.createBuffer();
   context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
-  context.bufferData(cubeUVCoords);
+  context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
 
   context.enableVertexAttribArray(texCoordAttributeLocation);
   context.vertexAttribPointer(texCoordAttributeLocation, 2, context.FLOAT, true, 0,0);
+
+  var texture = context.createTexture();
+  context.activeTexture(context.TEXTURE0 + 0);
+  context.bindTexture(context.TEXTURE_2D, texture);
+
+
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+  var mipLevel = 0;               // the largest mip
+  var internalFormat = context.RGBA;   // format we want in the texture
+  var srcFormat = context.RGBA;        // format of data we are supplying
+  var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
+  context.texImage2D(context.TEXTURE_2D,
+                mipLevel,
+                internalFormat,
+                srcFormat,
+                srcType,
+                img);
 }
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
@@ -196,6 +237,9 @@ function mainDraw(){
   var test = mvp.toMvp();
   //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
   objectsToDraw.forEach((element, idx) => {
+    if(objectsToDraw[idx].program != activeProgram){
+      switchProgram(element.program);
+    }
     context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
     context.bindVertexArray(element.attrib);
     context.drawArrays(element.primitiveType, element.offset, element.count);
