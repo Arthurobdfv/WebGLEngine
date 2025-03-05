@@ -1,3 +1,5 @@
+export const glContext = document.getElementById('canvas').getContext('webgl2');
+
 export function compileShader(WebGLContext, shaderType, sourceCode){
     var shader = WebGLContext.createShader(shaderType);
     WebGLContext.shaderSource(shader, sourceCode);
@@ -150,18 +152,18 @@ export function setRectangle(gl, x, y, width, height) {
         /**
          *
          */
-        constructor(vertexSource, fragSource, glContext, contextVariables = []) {
+        constructor(vertexSource, fragSource, glContextt, contextVariables = []) {
 var vertexShader = compileShader(glContext, glContext.VERTEX_SHADER, vertexSource);
 var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource);
             this.program = createProgram(glContext, vertexShader, fragShader);
             this.context = glContext; 
             if(contextVariables.length != 0){
                 contextVariables.forEach(element => {
-                    var loc = this.context.getAttribLocation(this.program,element.name);
+                    var loc = glContext.getAttribLocation(this.program,element.name);
                     if(loc != -1){
                         this.attribs[element.name] = { uniform: false, location: loc};
                     } else {
-                        var uloc = this.context.getUniformLocation(this.program,element.name);
+                        var uloc = glContext.getUniformLocation(this.program,element.name);
                         if(uloc != null){
                             this.attribs[element.name] = { uniform: true, location: uloc, type: element.type};  
                         }
@@ -170,13 +172,13 @@ var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource)
             }
         }
 
-        setVariables(contextVariables = []) {
+        setVariables(contextVariables = [], contextValues = {}) {
             contextVariables.forEach(element => {
                 if(element.name in this.attribs){
                     console.log(`will try ${element.name}`)
                     var attrib = this.attribs[element.name];
                     if(attrib.uniform){
-                        this.setUniformVariable(attrib.location, element.type, element.value);
+                        this.setUniformVariable(attrib.location, element.type, contextValues[element.name].value);
                     }
                 }
             })
@@ -190,17 +192,18 @@ var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource)
             switch(type){
                 case 'v3':
                     var casted = new Float32Array(value);
-                    this.context.uniform3f(location, casted[0], casted[1], casted[2]);
+                    glContext.uniform3f(location, casted[0], casted[1], casted[2]);
                     break;
                 case 'v4':
                     var casted = new Float32Array(value);
-                    this.context.uniform4f(location, casted[0], casted[1], casted[2], casted[3]);
+                    glContext.uniform4f(location, casted[0], casted[1], casted[2], casted[3]);
                     break;
                 case 'm4':
-                    this.context.uniformMatrix4fv(location, false ,new Float32Array(value));
+                    var casted = new Float32Array(value);
+                    glContext.uniformMatrix4fv(location, false ,casted);
                     break;
                 case 'm4t':
-                    this.context.uniformMatrix4fv(location, false ,value);
+                    glContext.uniformMatrix4fv(location, false ,value);
                     break;
             }
         }

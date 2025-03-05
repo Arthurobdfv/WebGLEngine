@@ -20,27 +20,40 @@ try {
   var text = document.getElementById('canvas-size');
   console.log(canvas);
   
-  var context = canvas.getContext('webgl2');
+  var context = aux.glContext;
   console.log(context);
   context.enable(context.DEPTH_TEST);
   var activeProgram = null;
   log(`Webgl Errors: ${context.getError()}`);
+
+  var contextVariables = []
+  contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_NORMAL, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false, value: null});
+  contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4", value: null});
+  contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4", value: null});
+  contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4", value: null});
+  contextVariables.push({name: "u_lightPos", uniform: true, type: "v3", value: null});
+  contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
+  contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
+  var contextVariableValues = {}; 
+  contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
   var testProgram = new aux.ShaderProgram(basicLitVertexShaderSource, basicLitFragShaderSource, context, contextVariables);
   var basicLitShaderProgram = testProgram.getProgram();
   log(`Webgl Errors: ${context.getError()}`);
-log(`Webgl Errors: ${context.getError()}`);
+  log(`Webgl Errors: ${context.getError()}`);
   var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
   var fragTexShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
-  var texturedShaderProgram = aux.createProgram(context, vertexTexShader, fragTexShader);
+  //var texturedShaderProgram = aux.createProgram(context, vertexTexShader, fragTexShader);
   switchProgram(basicLitShaderProgram);
   log(`Webgl Errors: ${context.getError()}`);
-log(`Webgl Errors: ${context.getError()}`);
+  log(`Webgl Errors: ${context.getError()}`);
   log(`GetProgramReturns: ${basicLitShaderProgram}`)
   var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
   log(`Position attrib : ${positionAttributeLocation}`);
   var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
   var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
-  var texCoordAttributeLocation = context.getAttribLocation(texturedShaderProgram, ATTRIB_TEXTURE_COORD);
   var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
   var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
   var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
@@ -51,28 +64,18 @@ log(`Webgl Errors: ${context.getError()}`);
   console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
   
 log(`Webgl Errors: ${context.getError()}`);
-  
-  var contextVariables = []
-  contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
-  contextVariables.push({name: ATTRIB_NORMAL, uniform: false, value: null});
-  contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
-  contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false, value: null});
-  log(`Webgl Errors: ${context.getError()}`);
+
+
 log(`Webgl Errors: ${context.getError()}`);
-  contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4", value: null});
-  contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4", value: null});
-  contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4", value: null});
-  contextVariables.push({name: "u_lightPos", uniform: true, type: "v3", value: null});
-  contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
-  
-  var contextVariableValues = {}; 
-  contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
-  
-  log(`Webgl Errors: ${context.getError()}`);
 log(`Webgl Errors: ${context.getError()}`);
-  //var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
+
+
+log(`Webgl Errors: ${context.getError()}`);
+log(`Webgl Errors: ${context.getError()}`);
+var texturedProgram = new aux.ShaderProgram(basicLitTexturedVertexShaderSource, basicLitTexturedFragShaderSource, context, contextVariables);
+var texCoordAttributeLocation = texturedProgram.getLocation(ATTRIB_TEXTURE_COORD);
   
-  function switchProgram(newProgram){
+function switchProgram(newProgram){
     context.useProgram(newProgram);
     activeProgram = newProgram;
 }
@@ -106,11 +109,11 @@ var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram
 
 
 
-switchProgram(texturedShaderProgram);
+//switchProgram(texturedShaderProgram);
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
-var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
-//appendTextureToCube(cube2,'./textures/brick 10 - 128x128.png');
+var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, texturedProgram);
+appendTextureToCube(cube2,'./textures/brick 10 - 128x128.png');
 
 
 log(`Webgl Errors: ${context.getError()}`);
@@ -254,9 +257,9 @@ log(`Webgl Errors: ${context.getError()}`);
   //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
   
-  context.useProgram(basicLitShaderProgram);
+  switchProgram(basicLitShaderProgram)  
   //context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
-  contextVariableValues["u_color", [.7,.7,.3,1]];
+  contextVariableValues["u_color", [.7,.7,0.3,1]];
   
   var timeDeg2Rad = time++ * deg2rad;
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
@@ -284,7 +287,7 @@ log(`Webgl Errors: ${context.getError()}`);
     }
     contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
     
-    element.shaderProgram.setVariables(contextVariables);
+    element.shaderProgram.setVariables(contextVariables, contextVariableValues);
     //context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
     context.bindVertexArray(element.attrib);
     context.drawArrays(element.primitiveType, element.offset, element.count);
