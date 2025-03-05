@@ -5,61 +5,76 @@ import './shaderConstants.mjs';
 import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 
 
+var textBox = document.getElementById('');
 
-/** @type {HTMLCanvasElement} */
-var canvas = document.getElementById('canvas');
-var text = document.getElementById('canvas-size');
-console.log(canvas);
+textBox.style.height = 'auto';
+textBox.style.height = `${textarea.scrollHeight}px`;
 
-var context = canvas.getContext('webgl2');
-console.log(context);
-context.enable(context.DEPTH_TEST);
-var activeProgram = null;
+function log(message){
+  textarea.innerHTML += '\n' + message;
+  textarea.style.height = 'auto';
+  textarea.style.height = `${textarea.scrollHeight}px`;
+}
 
-var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
-var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
-var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
-var basicLitShaderProgram = testProgram.getProgram();
-switchProgram(basicLitShaderProgram);
+try {
 
-var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
-var fragTexShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
-var texturedShaderProgram = aux.createProgram(context, vertexTexShader, fragTexShader);
+  /** @type {HTMLCanvasElement} */
+  var canvas = document.getElementById('canvas');
+  var text = document.getElementById('canvas-size');
+  console.log(canvas);
+  
+  var context = canvas.getContext('webgl2');
+  console.log(context);
+  context.enable(context.DEPTH_TEST);
+  var activeProgram = null;
+  
+  var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
+  var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
+  var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
+  var basicLitShaderProgram = testProgram.getProgram();
+  
+  var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
+  var fragTexShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
+  var texturedShaderProgram = aux.createProgram(context, vertexTexShader, fragTexShader);
+  switchProgram(basicLitShaderProgram);
+  
+  log(`GetProgramReturns: ${basicLitShaderProgram}`)
+  var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
+  log(`Position attrib : ${positionAttributeLocation}`);
+  var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
+  var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
+  var texCoordAttributeLocation = context.getAttribLocation(texturedShaderProgram, ATTRIB_TEXTURE_COORD);
+  var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
+  var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
+  var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
+  var uniform_ColorLocation = context.getUniformLocation(basicLitShaderProgram, "u_color");
+  var uniform_TransformLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_TRANSFORMATION_MAT);
+  
 
-var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
-var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
-var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
-var texCoordAttributeLocation = context.getAttribLocation(texturedShaderProgram, ATTRIB_TEXTURE_COORD);
-var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
-var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
-var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
-var uniform_ColorLocation = context.getUniformLocation(basicLitShaderProgram, "u_color");
-var uniform_TransformLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_TRANSFORMATION_MAT);
-
-console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
-
-
-var contextVariables = []
-contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
-contextVariables.push({name: ATTRIB_NORMAL, uniform: false, value: null});
-contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
-contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false, value: null});
-
-contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4", value: null});
-contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4", value: null});
-contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4", value: null});
-contextVariables.push({name: "u_lightPos", uniform: true, type: "v3", value: null});
-contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
-
-var contextVariableValues = {}; 
-contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
-
-
-//var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
-
-function switchProgram(newProgram){
-  context.useProgram(newProgram);
-  activeProgram = newProgram;
+  console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
+  
+  
+  var contextVariables = []
+  contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_NORMAL, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false, value: null});
+  
+  contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4", value: null});
+  contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4", value: null});
+  contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4", value: null});
+  contextVariables.push({name: "u_lightPos", uniform: true, type: "v3", value: null});
+  contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
+  
+  var contextVariableValues = {}; 
+  contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
+  
+  
+  //var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
+  
+  function switchProgram(newProgram){
+    context.useProgram(newProgram);
+    activeProgram = newProgram;
 }
 var rectSize = [ 100, 100 ];
 
@@ -114,10 +129,10 @@ function setupCube(attrib, data, context, objTransform, shaderProgram){
   var count = 36;
   context.enableVertexAttribArray(positionAttributeLocation);
   context.vertexAttribPointer(positionAttributeLocation, size, type, normalize, 36, offset);
-
+  
   context.enableVertexAttribArray(normalAttributeLocation);
   context.vertexAttribPointer(normalAttributeLocation, size, type, normalize, 36, 3*4);
-
+  
   context.enableVertexAttribArray(vertexColorAttributeLocation);
   context.vertexAttribPointer(vertexColorAttributeLocation,size, type, normalize, 36, 6*4);
   
@@ -129,21 +144,21 @@ function appendTextureToCube(cubeIndex, textureSource){
   var img = new Image();
   img.onload = function() { console.log("Loaded Image!"); }
   img.src = textureSource;
-
+  
   var cubeToChange = objectsToDraw[cubeIndex];
   var cubeUVCoords = aux.getCubeUVCoords();
   var coordBuffer = context.createBuffer();
   context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
   context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
-
+  
   context.enableVertexAttribArray(texCoordAttributeLocation);
   context.vertexAttribPointer(texCoordAttributeLocation, 2, context.FLOAT, true, 0,0);
-
+  
   var texture = context.createTexture();
   context.activeTexture(context.TEXTURE0 + 0);
   context.bindTexture(context.TEXTURE_2D, texture);
-
-
+  
+  
   context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
   context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
   context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
@@ -170,7 +185,7 @@ var time = 0;
 var deg2rad = 0.017453;
 
 
-  context.uniform4f(uniform_ColorLocation, Math.sin(time++), Math.sin(time++ + randOffset), 0.5, 1);
+context.uniform4f(uniform_ColorLocation, Math.sin(time++), Math.sin(time++ + randOffset), 0.5, 1);
 
 
 var fieldOfView = 60;
@@ -191,11 +206,11 @@ function resizeCanvasToDisplaySize(canvas) {
   // Lookup the size the browser is displaying the canvas in CSS pixels.
   const displayWidth  = canvas.clientWidth * window.devicePixelRatio;;
   const displayHeight = canvas.clientHeight * window.devicePixelRatio;;
- 
+  
   // Check if the canvas is not the same size.
   const needResize = canvas.width  !== displayWidth ||
-                     canvas.height !== displayHeight;
- 
+  canvas.height !== displayHeight;
+  
   if (needResize) {
     // Make the canvas the same size
     canvas.width  = displayWidth;
@@ -203,7 +218,7 @@ function resizeCanvasToDisplaySize(canvas) {
     console.log(`Display Width: ${displayWidth}, Display Height: ${displayHeight}`);
   }
   var aspect = context.canvas.width / context.canvas.height;
-
+  
   projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
   return needResize;
 }
@@ -232,11 +247,11 @@ function mainDraw(){
   contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
   //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
-
+  
   context.useProgram(basicLitShaderProgram);
   //context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
   contextVariableValues["u_color", [.7,.7,.3,1]];
-
+  
   var timeDeg2Rad = time++ * deg2rad;
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
   //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
@@ -268,3 +283,8 @@ function mainDraw(){
   requestAnimationFrame(mainDraw)
 }
 mainDraw();
+
+}
+catch(error) {
+  log(error);
+}
