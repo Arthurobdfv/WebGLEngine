@@ -142,3 +142,72 @@ export function setRectangle(gl, x, y, width, height) {
 
     )
   }
+
+  export class ShaderProgram {
+        program;
+        context;
+        attribs = [];
+        /**
+         *
+         */
+        constructor(vertexSource, fragSource, glContext, contextVariables = []) {
+            this.program = createProgram(glContext, vertexSource, fragSource);
+            this.context = glContext; 
+            if(contextVariables.length != 0){
+                contextVariables.forEach(element => {
+                    var loc = this.context.getAttribLocation(this.program,element.name);
+                    if(loc != -1){
+                        this.attribs[element.name] = { uniform: false, location: loc};
+                    } else {
+                        var uloc = this.context.getUniformLocation(this.program,element.name);
+                        if(uloc != null){
+                            this.attribs[element.name] = { uniform: true, location: uloc, type: element.type};  
+                        }
+                    }
+                });
+            }
+        }
+
+        setVariables(contextVariables = []) {
+            contextVariables.forEach(element => {
+                if(element.name in this.attribs){
+                    var attrib = this.attribs[element.name];
+                    if(attrib.uniform){
+                        this.setUniformVariable(attrib.location, element.type, element.value);
+                    }
+                }
+            })
+        }
+
+        getProgram(){
+            return this.program;
+        }
+
+        setUniformVariable(location, type ,value){
+            switch(type){
+                case 'v3':
+                    this.context.uniform3f(location, value[0], value[1], value[2]);
+                    break;
+                case 'v4':
+                    this.context.uniform4f(location, value[0], value[1], value[2], value[3]);
+                    break;
+                case 'm4':
+                    this.context.uniformMatrix4fv(location, false ,value);
+                    break;
+                case 'm4t':
+                    this.context.uniformMatrix4fv(location, true ,value);
+                    break;
+            }
+        }
+
+        getLocation(parameter){
+            var loc = -1;
+            if(parameter in this.attribs)
+                loc = this.attribs[parameter].location;
+            return loc;
+        }
+
+        setAttributeVariable(name, type, value){
+
+        }
+  }
