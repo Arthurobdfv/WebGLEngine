@@ -102,8 +102,8 @@ var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, testProgram);
 var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
 
 
-switchProgram(texturedShaderProgram);
 
+switchProgram(texturedShaderProgram);
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
@@ -239,7 +239,6 @@ function mainDraw(){
     context.viewport(0,0, canvas.width, canvas.height);
   } 
   
-  context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
   contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
   //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
@@ -260,13 +259,14 @@ function mainDraw(){
   var lightTransform = objectsToDraw[light].transform.getPos();
   text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
   //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
-  contextVariableValues["u_lightPos"].value = [lightTransform[0], lightTransform[1], lightTransform[2]];
+  contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
   t[2] = -600;
   t[1] = -100;
   mvp.position(t[0], t[1], t[2]);
   mvp.rotation(0,time++/3,0);
   var test = mvp.toMvp();
   //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
+  context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   objectsToDraw.forEach((element, idx) => {
     if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
       switchProgram(element.shaderProgram.getProgram());
