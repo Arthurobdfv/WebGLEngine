@@ -7,3 +7,10 @@ canvas {
   height: 100%; 
   display: block; /* make the canvas not cause a scrollbar */
 }
+
+.textarea {
+  border: 1px solid rgb(203 213 225);
+  border-radius: 0.25rem;
+  height: 4rem;
+  width: 16rem;
+}
