@@ -38,6 +38,20 @@ var uniform_TransformLocation = context.getUniformLocation(basicLitShaderProgram
 console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
 
 
+var contextVariables = []
+contextVariables.push({name: ATTRIB_POSITION, uniform: false});
+contextVariables.push({name: ATTRIB_NORMAL, uniform: false});
+contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false});
+contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false});
+
+contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4"});
+contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4"});
+contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4"});
+contextVariables.push({name: "u_lightPos", uniform: true, type: "v3"});
+contextVariables.push({name: "u_color", uniform: true, type: "v4"});
+
+var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
+
 function switchProgram(newProgram){
   context.useProgram(newProgram);
   activeProgram = newProgram;
