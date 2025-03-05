@@ -25,9 +25,7 @@ try {
   context.enable(context.DEPTH_TEST);
   var activeProgram = null;
   
-  var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
-  var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
-  var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
+  var testProgram = new aux.ShaderProgram(basicLitVertexShaderSource, basicLitFragShaderSource, context, contextVariables);
   var basicLitShaderProgram = testProgram.getProgram();
   
   var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
