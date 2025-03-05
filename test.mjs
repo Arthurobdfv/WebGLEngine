@@ -20,7 +20,7 @@ var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVer
 var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
 var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
 var basicLitShaderProgram = testProgram.getProgram();
-switchProgram(basicLitFragShaderSource);
+switchProgram(basicLitShaderProgram);
 
 var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
 var fragTexShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
