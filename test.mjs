@@ -238,7 +238,12 @@ mvp.position(0, 0, 0);
 mvp.rotation(0);
 var test = cameraMvp.toMvp();
 var test2 = 1;
+var tick = 0;
 function mainDraw(){
+tick = (tick + 1) % 60;
+if(tick == 0){
+log(`Webgl Errors: ${context.getError()}`);
+}
   if(resizeCanvasToDisplaySize(canvas)){
     text.innerHTML = `Canvas size ${canvas.width}, ${canvas.height}`;
     context.viewport(0,0, canvas.width, canvas.height);
