@@ -16,9 +16,8 @@ console.log(context);
 context.enable(context.DEPTH_TEST);
 var activeProgram = null;
 
-var vertexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitVertexShaderSource);
-var fragShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitFragShaderSource);
-var basicLitShaderProgram = aux.createProgram(context, vertexShader, fragShader);
+var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
+var basicLitShaderProgram = testProgram.getProgram();
 
 
 var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
@@ -53,7 +52,7 @@ contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null})
 var contextVariableValues = {}; 
 contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
 
-var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
+
 //var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
 
 function switchProgram(newProgram){
