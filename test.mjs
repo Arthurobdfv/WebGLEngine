@@ -7,13 +7,10 @@ import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COL
 
 var textBox = document.getElementById('');
 
-textBox.style.height = 'auto';
-textBox.style.height = `${textarea.scrollHeight}px`;
-
 function log(message){
-  textarea.innerHTML += '\n' + message;
-  textarea.style.height = 'auto';
-  textarea.style.height = `${textarea.scrollHeight}px`;
+  textBox.innerHTML += '\n' + message;
+  textBox.style.height = 'auto';
+  textBox.style.height = `${textBox.scrollHeight}px`;
 }
 
 try {
