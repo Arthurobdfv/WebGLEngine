@@ -5,7 +5,7 @@ import './shaderConstants.mjs';
 import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 
 
-var textBox = document.getElementById('');
+var textBox = document.getElementById('textarea');
 
 function log(message){
   textBox.innerHTML += '\n' + message;
