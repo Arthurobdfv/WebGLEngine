@@ -51,6 +51,7 @@ contextVariables.push({name: "u_lightPos", uniform: true, type: "v3"});
 contextVariables.push({name: "u_color", uniform: true, type: "v4"});
 
 var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
+var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
 
 function switchProgram(newProgram){
   context.useProgram(newProgram);
@@ -80,9 +81,9 @@ var lightTransform = new mat(4);
 
 
 var objectsToDraw = [];
-var cube1 = setupCube(vao, rectVerts, context, vaoTransform, basicLitShaderProgram);
-var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, basicLitShaderProgram);
-var light = setupCube(lightVao, lightVerts, context, lightTransform, basicLitShaderProgram);
+var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
+var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, testProgram);
+var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
 
 
 switchProgram(texturedShaderProgram);
@@ -95,7 +96,7 @@ appendTextureToCube(cube2,'./textures/brick 10 - 128x128.png');
 
 
 
-function setupCube(attrib, data, context, objTransform, program){
+function setupCube(attrib, data, context, objTransform, shaderProgram){
   var positionBuffer = context.createBuffer();
   context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
   context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
@@ -116,7 +117,7 @@ function setupCube(attrib, data, context, objTransform, program){
   context.enableVertexAttribArray(vertexColorAttributeLocation);
   context.vertexAttribPointer(vertexColorAttributeLocation,size, type, normalize, 36, 6*4);
   
-  objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform, program})
+  objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform, shaderProgram})
   return objectsToDraw.length-1;
 }
 
@@ -157,7 +158,7 @@ function appendTextureToCube(cubeIndex, textureSource){
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
 
-context.clearColor(0,0,0,0);
+context.clearColor(0.1,0.25,0.2,0);
 context.clear(context.COLOR_BUFFER_BIT);
 
 var randOffset = Math.random(0,1) * 1000;
@@ -203,7 +204,6 @@ function resizeCanvasToDisplaySize(canvas) {
   return needResize;
 }
 
-
 var t = [0, 0, 0];
 var angle = 0;
 var r = [0, 0, 0];
@@ -224,15 +224,14 @@ function mainDraw(){
   } 
   
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-  context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
-  context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
-  context.clearColor(0.1,0.25,0.2,0);
+  //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
+  contextVariables[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
+  //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
+  contextVariables[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+
   context.useProgram(basicLitShaderProgram);
   context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
-  //t[0] = (Math.sin(time++ * deg2rad) + 1 / 2) * 50;
-  //t[1] = (Math.cos(time++ * deg2rad) + 1 / 2) * 50;
-  //t[0] = context.canvas.width/2;
-  //t[1] = context.canvas.height/2;
+
   var timeDeg2Rad = time++ * deg2rad;
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
   //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
@@ -243,7 +242,8 @@ function mainDraw(){
   objectsToDraw[light].transform.position(0, 100 + Math.cos(timeDeg2Rad) * 100, -200 + Math.sin(timeDeg2Rad)* 100);
   var lightTransform = objectsToDraw[light].transform.getPos();
   text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
-  context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
+  //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
+  contextVariables["u_lightPos"].value = [lightTransform[0], lightTransform[1], lightTransform[2]];
   t[2] = -600;
   t[1] = -100;
   mvp.position(t[0], t[1], t[2]);
@@ -251,10 +251,12 @@ function mainDraw(){
   var test = mvp.toMvp();
   //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
   objectsToDraw.forEach((element, idx) => {
-    if(objectsToDraw[idx].program != activeProgram){
-      switchProgram(element.program);
+    if(objectsToDraw[idx].program.getProgram() != activeProgram){
+      switchProgram(element.program.getProgram());
     }
-    context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
+    contextVariables[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
+    element.program.setVariables(contextVariables);
+    //context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
     context.bindVertexArray(element.attrib);
     context.drawArrays(element.primitiveType, element.offset, element.count);
   });
