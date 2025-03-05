@@ -269,9 +269,11 @@ function mainDraw(){
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   objectsToDraw.forEach((element, idx) => {
     if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
+      log("Switching program...");
       switchProgram(element.shaderProgram.getProgram());
     }
     contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
+    log(`Variables are: ${contextVariables} ${contextVariableValues}`);
     element.shaderProgram.setVariables(contextVariables);
     //context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
     context.bindVertexArray(element.attrib);
