@@ -233,7 +233,8 @@ function mainDraw(){
   contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
 
   context.useProgram(basicLitShaderProgram);
-  context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
+  //context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
+  contextVariableValues["u_color", [.7,.7,.3,1]];
 
   var timeDeg2Rad = time++ * deg2rad;
   //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
