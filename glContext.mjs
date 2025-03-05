@@ -151,7 +151,9 @@ export function setRectangle(gl, x, y, width, height) {
          *
          */
         constructor(vertexSource, fragSource, glContext, contextVariables = []) {
-            this.program = createProgram(glContext, vertexSource, fragSource);
+var vertexShader = compileShader(glContext, glContext.VERTEX_SHADER, vertexSource);
+var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource);
+            this.program = createProgram(glContext, vertexShader, fragShader);
             this.context = glContext; 
             if(contextVariables.length != 0){
                 contextVariables.forEach(element => {
