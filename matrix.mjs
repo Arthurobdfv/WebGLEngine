@@ -125,7 +125,7 @@ asNewDimention(newDimension){
   
       var d = 1.0 / (m00 * t0 + m10 * t1 + m20 * t2 + m30 * t3);
   
-      return [
+      return new Float32Array([
         d * t0,
         d * t1,
         d * t2,
@@ -154,7 +154,7 @@ asNewDimention(newDimension){
              (tmp_22 * m32 + tmp_14 * m02 + tmp_19 * m12)),
         d * ((tmp_22 * m22 + tmp_16 * m02 + tmp_21 * m12) -
              (tmp_20 * m12 + tmp_23 * m22 + tmp_17 * m02)),
-      ];  }
+      ]);  }
 
 
 }
