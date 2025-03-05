@@ -171,6 +171,7 @@ export function setRectangle(gl, x, y, width, height) {
         setVariables(contextVariables = []) {
             contextVariables.forEach(element => {
                 if(element.name in this.attribs){
+                    console.log(`will try ${element.name}`)
                     var attrib = this.attribs[element.name];
                     if(attrib.uniform){
                         this.setUniformVariable(attrib.location, element.type, element.value);
@@ -186,16 +187,18 @@ export function setRectangle(gl, x, y, width, height) {
         setUniformVariable(location, type ,value){
             switch(type){
                 case 'v3':
-                    this.context.uniform3f(location, value[0], value[1], value[2]);
+                    var casted = new Float32Array(value);
+                    this.context.uniform3f(location, casted[0], casted[1], casted[2]);
                     break;
                 case 'v4':
-                    this.context.uniform4f(location, value[0], value[1], value[2], value[3]);
+                    var casted = new Float32Array(value);
+                    this.context.uniform4f(location, casted[0], casted[1], casted[2], casted[3]);
                     break;
                 case 'm4':
-                    this.context.uniformMatrix4fv(location, false ,value);
+                    this.context.uniformMatrix4fv(location, false ,new Float32Array(value));
                     break;
                 case 'm4t':
-                    this.context.uniformMatrix4fv(location, true ,value);
+                    this.context.uniformMatrix4fv(location, false ,value);
                     break;
             }
         }
