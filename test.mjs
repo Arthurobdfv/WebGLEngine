@@ -39,19 +39,22 @@ console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
 
 
 var contextVariables = []
-contextVariables.push({name: ATTRIB_POSITION, uniform: false});
-contextVariables.push({name: ATTRIB_NORMAL, uniform: false});
-contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false});
-contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false});
+contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
+contextVariables.push({name: ATTRIB_NORMAL, uniform: false, value: null});
+contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
+contextVariables.push({name: ATTRIB_VERTEX_COLOR, uniform: false, value: null});
 
-contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4"});
-contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4"});
-contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4"});
-contextVariables.push({name: "u_lightPos", uniform: true, type: "v3"});
-contextVariables.push({name: "u_color", uniform: true, type: "v4"});
+contextVariables.push({name: UNIFORM_CAMERA_MAT, uniform: true, type: "m4", value: null});
+contextVariables.push({name: UNIFORM_PROJECTION_MAT, uniform: true, type: "m4", value: null});
+contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4", value: null});
+contextVariables.push({name: "u_lightPos", uniform: true, type: "v3", value: null});
+contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
+
+var contextVariableValues = {}; 
+contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
 
 var testProgram = new aux.ShaderProgram(vertexShader, fragShader, context, contextVariables);
-var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
+//var texturedProgram = new aux.ShaderProgram(vertexTexShader, fragTexShader, context, contextVariables);
 
 function switchProgram(newProgram){
   context.useProgram(newProgram);
@@ -90,7 +93,7 @@ switchProgram(texturedShaderProgram);
 
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
-var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, basicLitShaderProgram);
+var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
 appendTextureToCube(cube2,'./textures/brick 10 - 128x128.png');
 
 
@@ -225,9 +228,9 @@ function mainDraw(){
   
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
-  contextVariables[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
+  contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
   //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
-  contextVariables[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+  contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
 
   context.useProgram(basicLitShaderProgram);
   context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
@@ -243,7 +246,7 @@ function mainDraw(){
   var lightTransform = objectsToDraw[light].transform.getPos();
   text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
   //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
-  contextVariables["u_lightPos"].value = [lightTransform[0], lightTransform[1], lightTransform[2]];
+  contextVariableValues["u_lightPos"].value = [lightTransform[0], lightTransform[1], lightTransform[2]];
   t[2] = -600;
   t[1] = -100;
   mvp.position(t[0], t[1], t[2]);
@@ -251,11 +254,11 @@ function mainDraw(){
   var test = mvp.toMvp();
   //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
   objectsToDraw.forEach((element, idx) => {
-    if(objectsToDraw[idx].program.getProgram() != activeProgram){
-      switchProgram(element.program.getProgram());
+    if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
+      switchProgram(element.shaderProgram.getProgram());
     }
-    contextVariables[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
-    element.program.setVariables(contextVariables);
+    contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
+    element.shaderProgram.setVariables(contextVariables);
     //context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
     context.bindVertexArray(element.attrib);
     context.drawArrays(element.primitiveType, element.offset, element.count);
