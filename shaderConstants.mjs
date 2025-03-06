@@ -94,7 +94,7 @@ void main() {
   float intensity = 0.3;
   float NdotL = dot(normalize(v_lightPos-v_pos), normalize(v_normal));
 
-  outColor = texture(u_image, v_texCoord);
+  outColor = vec4(NdotL * texture(u_image, v_texCoord).xyz,1);
 
 }
 
