@@ -85,7 +85,7 @@ try {
   var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
   var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
   
-  switchProgram(texturedProgram);
+  switchProgram(texturedProgram.getProgram());
   var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, texturedProgram);
   await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
   
