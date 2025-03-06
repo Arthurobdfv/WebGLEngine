@@ -48,10 +48,10 @@ export function setRectangle(gl, x, y, width, height) {
 
   export function randomInt(range) {
     return Math.floor(Math.random() * range);
-  }
+}
 
 
-  export function getRectangle(x, y, width, height, depth = 10){
+export function getRectangle(x, y, width, height, depth = 10){
     var x1 = x;
     var x2 = x + width;
     var y1 = y;
@@ -63,8 +63,31 @@ export function setRectangle(gl, x, y, width, height) {
         x2, y2, 0,       0, 0,-1,   1, 0, 0,
         x2, y1, 0,       0, 0,-1,   1, 0, 0,
         x1, y2, 0,       0, 0,-1,   1, 0, 0,
-
-
+        
+        // top side
+        x2, y2,0,        0, 1, 0,   0, 1, 1,
+        x1, y2,0,        0, 1, 0,   0, 1, 1,
+        x1, y2,depth,    0, 1, 0,   0, 1, 1,
+        x1, y2,depth,    0, 1, 0,   0, 1, 1,
+        x2, y2,depth,    0, 1, 0,   0, 1, 1,
+        x2, y2,0,        0, 1, 0,   0, 1, 1,
+        
+        // back side
+        x1, y2, depth,   0, 0, 1,   1, 0, 1,
+        x2, y1, depth,   0, 0, 1,   1, 0, 1,
+        x2, y2, depth,   0, 0, 1,   1, 0, 1,
+        x1, y1, depth,   0, 0, 1,   1, 0, 1,
+        x2, y1, depth,   0, 0, 1,   1, 0, 1,
+        x1, y2, depth,   0, 0, 1,   1, 0, 1,
+        
+        // Bottom Side
+        x2, y1,0,        0,-1, 0,   0, 0, 1,
+        x1, y1,depth,    0,-1, 0,   0, 0, 1,
+        x1, y1,0,        0,-1, 0,   0, 0, 1,
+        x2, y1,0,        0,-1, 0,   0, 0, 1,
+        x2, y1,depth,    0,-1, 0,   0, 0, 1,
+        x1, y1,depth,    0,-1, 0,   0, 0, 1,
+        
         // Left Side?
         x1,y2,depth,    -1, 0, 0,   1, 1, 0,
         x1,y1,0,        -1, 0, 0,   1, 1, 0,
@@ -81,28 +104,8 @@ export function setRectangle(gl, x, y, width, height) {
         x2,y2,depth,     1, 0, 0,   0, 1, 0,
         x2,y1,0,         1, 0, 0,   0, 1, 0,
 
-        // top side
-        x2, y2,0,        0, 1, 0,   0, 1, 1,
-        x1, y2,0,        0, 1, 0,   0, 1, 1,
-        x1, y2,depth,    0, 1, 0,   0, 1, 1,
-        x1, y2,depth,    0, 1, 0,   0, 1, 1,
-        x2, y2,depth,    0, 1, 0,   0, 1, 1,
-        x2, y2,0,        0, 1, 0,   0, 1, 1,
 
-        // Bottom Side
-        x2, y1,0,        0,-1, 0,   0, 0, 1,
-        x1, y1,depth,    0,-1, 0,   0, 0, 1,
-        x1, y1,0,        0,-1, 0,   0, 0, 1,
-        x2, y1,0,        0,-1, 0,   0, 0, 1,
-        x2, y1,depth,    0,-1, 0,   0, 0, 1,
-        x1, y1,depth,    0,-1, 0,   0, 0, 1,
 
-        x1, y2, depth,   0, 0, 1,   1, 0, 1,
-        x2, y1, depth,   0, 0, 1,   1, 0, 1,
-        x2, y2, depth,   0, 0, 1,   1, 0, 1,
-        x1, y1, depth,   0, 0, 1,   1, 0, 1,
-        x2, y1, depth,   0, 0, 1,   1, 0, 1,
-        x1, y2, depth,   0, 0, 1,   1, 0, 1,
 
 
      ]);
@@ -119,26 +122,26 @@ export function setRectangle(gl, x, y, width, height) {
         2*stepX,    0,
         stepX,      stepY,
 
-        stepX,      0       +stepY,
         stepX,      stepY   +stepY,
         2*stepX,    0       +stepY,
-        stepX,      stepY   +stepY,
+        stepX,      0       +stepY,
         2*stepX,    stepY   +stepY,
         2*stepX,    0       +stepY,
+        stepX,      stepY   +stepY,
 
-        stepX,      0       +2*stepY,
         stepX,      stepY   +2*stepY,
         2*stepX,    0       +2*stepY,
-        stepX,      stepY   +2*stepY,
+        stepX,      0       +2*stepY,
         2*stepX,    stepY   +2*stepY,
         2*stepX,    0       +2*stepY,
+        stepX,      stepY   +2*stepY,
 
-        stepX,      0       +3*stepY,
         stepX,      stepY   +3*stepY,
         2*stepX,    0       +3*stepY,
-        stepX,      stepY   +3*stepY,
+        stepX,      0       +3*stepY,
         2*stepX,    stepY   +3*stepY,
         2*stepX,    0       +3*stepY,
+        stepX,      stepY   +3*stepY,
 
         stepX + stepX,      0       +2*stepY,
         stepX + stepX,      stepY   +2*stepY,
