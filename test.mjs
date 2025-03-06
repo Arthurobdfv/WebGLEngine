@@ -152,12 +152,6 @@ async function appendTextureToCube(cubeIndex, textureSource){
     switchProgram(shaderProgram.getProgram());
     var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
     log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
-    var img = new Image();
-    img.onload = function() { 
-      log(`Ready...`);
-      
-    }
-
     var imgPromise = loadImage(textureSource);
     img.src = textureSource;
     var cubeToChange = objectsToDraw[cubeIndex];
