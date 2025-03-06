@@ -107,7 +107,7 @@ var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, texturedProgram);
 appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
-
+log(`Go!!!`);
 
 log(`Webgl Errors: ${context.getError()}`);
 
@@ -144,29 +144,8 @@ function appendTextureToCube(cubeIndex, textureSource){
   log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
   var img = new Image();
   img.onload = function() { 
-
-    var texture = context.createTexture();
-    context.activeTexture(context.TEXTURE0 + 0);
-    context.bindTexture(context.TEXTURE_2D, texture);
+    log(`Ready...`);
     
-    log(`Configuring texture`);
-    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
-    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
-    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
-    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
-    log(`Webgl Errors: ${context.getError()}`);
-  
-    var mipLevel = 0;               // the largest mip
-    var internalFormat = context.RGBA;   // format we want in the texture
-    var srcFormat = context.RGBA;        // format of data we are supplying
-    var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
-    log(`Supplying texture image data for cube`);
-    context.texImage2D(context.TEXTURE_2D,
-                  mipLevel,
-                  internalFormat,
-                  srcFormat,
-                  srcType,
-                  img);
    }
   img.src = textureSource;
   contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
@@ -185,6 +164,31 @@ log(`Setting Coord buffer data`);
 log(`Webgl Errors: ${context.getError()}`);
 log(`Webgl Errors: ${context.getError()}`);
 log(`Finished setting up texture for cube ${cubeIndex}`);
+
+
+var texture = context.createTexture();
+    context.activeTexture(context.TEXTURE0 + 0);
+    context.bindTexture(context.TEXTURE_2D, texture);
+    
+    log(`Configuring texture`);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+    log(`Webgl Errors: ${context.getError()}`);
+  
+    var mipLevel = 0;               // the largest mip
+    var internalFormat = context.RGBA;   // format we want in the texture
+    var srcFormat = context.RGBA;        // format of data we are supplying
+    var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
+    log(`Supplying texture image data for cube`);
+    log(`Set...`);
+    context.texImage2D(context.TEXTURE_2D,
+                  mipLevel,
+                  internalFormat,
+                  srcFormat,
+                  srcType,
+                  img);
 }
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
