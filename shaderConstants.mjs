@@ -2,7 +2,8 @@
 export const ATTRIB_POSITION = `a_position`;
 export const ATTRIB_NORMAL = `a_normal`;
 export const ATTRIB_VERTEX_COLOR = `a_vertexColor`;
-export const ATTRIB_TEXTURE_COORD = `a_texcoord`;
+export const ATTRIB_TEXTURE_COORD = `a_texCoord`;
+export const UNIFORM_TEXTURE_IMAGE = `u_image`;
 export const UNIFORM_PROJECTION_MAT = `u_projMatrix`;
 export const UNIFORM_CAMERA_MAT = `u_camMvp`;
 export const UNIFORM_TRANSFORMATION_MAT = `u_transform`;
@@ -82,7 +83,7 @@ in vec3   v_pos;
 in vec4   v_vertexColor;
 in vec3   v_lightPos;
 in vec3   v_lightDir;
-in vec2 v_texCoord;
+in vec2   v_texCoord;
  
 // we need to declare an output for the fragment shader
 out vec4 outColor;
@@ -94,7 +95,7 @@ void main() {
   float NdotL = dot(normalize(v_lightPos-v_pos), normalize(v_normal));
   //outColor = vec4(u_color.xyz * NdotL * intensity,1);
   //outColor = v_vertexColor;
-outColor = vec4(vec3(NdotL * texture(u_image, v_texCoord).xyz),1);
+outColor = vec4(vec3(texture(u_image, v_texCoord).xyz),1);
 //outColor = vec4(vec3(normalize(v_lightPos-v_pos)),1);
 //outColor = vec4(vec3(NdotL),1);
 }
@@ -109,6 +110,7 @@ precision highp float;
 in vec4 a_position;
 in vec3 a_normal;
 in vec4 a_vertexColor;
+in vec2 a_texCoord;
  
 // A matrix to transform the positions by
 uniform mat4 u_projMatrix;
@@ -116,7 +118,6 @@ uniform mat4 u_transform;
 uniform mat4 u_camMvp;
 uniform vec3 u_lightPos;
 
-in vec2 a_texCoord;
 
 out vec3 v_normal;
 out vec3 v_pos; 
