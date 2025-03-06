@@ -138,8 +138,6 @@ try {
     var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
     log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
     var imgPromise = loadImage(textureSource);
-    img.src = textureSource;
-    var cubeToChange = objectsToDraw[cubeIndex];
     var cubeUVCoords = getCubeUVCoords();
     var coordBuffer = context.createBuffer();
     context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
