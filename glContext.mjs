@@ -111,7 +111,7 @@ export function setRectangle(gl, x, y, width, height) {
   export function getCubeUVCoords(){
     var stepX = 0.33;
     var stepY = 0.25;
-    return new Float32Array(
+    return new Float32Array([
         stepX,      0,
         stepX,      stepY,
         2*stepX,    0,
@@ -154,7 +154,7 @@ export function setRectangle(gl, x, y, width, height) {
         2*stepX - stepX,    stepY   +2*stepY,
         2*stepX - stepX,    0       +2*stepY,
 
-    )
+    ])
   }
   
   export class ShaderProgram {
