@@ -48,106 +48,91 @@ try {
   switchProgram(basicLitShaderProgram);
   log(`Webgl Errors: ${context.getError()}`);
   log(`Webgl Errors: ${context.getError()}`);
-  log(`GetProgramReturns: ${basicLitShaderProgram}`)
-  var positionAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_POSITION);
-  log(`Position attrib : ${positionAttributeLocation}`);
-  var normalAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_NORMAL);
-  var vertexColorAttributeLocation = context.getAttribLocation(basicLitShaderProgram, ATTRIB_VERTEX_COLOR);
-  var uniform_LightPositionLocation = context.getUniformLocation(basicLitShaderProgram, "u_lightPos");
-  var uniform_CameraMVPLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_CAMERA_MAT);
-  var uniform_ProjMatLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_PROJECTION_MAT);
-  var uniform_ColorLocation = context.getUniformLocation(basicLitShaderProgram, "u_color");
-  var uniform_TransformLocation = context.getUniformLocation(basicLitShaderProgram, UNIFORM_TRANSFORMATION_MAT);
+  log(`GetProgramReturns: ${basicLitShaderProgram}`);
+
+
+  var texturedProgram = new ShaderProgram(basicLitTexturedVertexShaderSource, basicLitTexturedFragShaderSource, context, contextVariables, "Textured_Program");
+  var texCoordAttributeLocation = texturedProgram.getLocation(ATTRIB_TEXTURE_COORD);
   
-log(`Webgl Errors: ${context.getError()}`);
-  console.log(`Attrib location for a_position is ${positionAttributeLocation}`);
-  
-log(`Webgl Errors: ${context.getError()}`);
-
-
-
-var texturedProgram = new ShaderProgram(basicLitTexturedVertexShaderSource, basicLitTexturedFragShaderSource, context, contextVariables, "Textured_Program");
-var texCoordAttributeLocation = texturedProgram.getLocation(ATTRIB_TEXTURE_COORD);
-  
-function switchProgram(newProgram){
-    context.useProgram(newProgram);
-    activeProgram = newProgram;
-}
-var rectSize = [ 100, 100 ];
-
-var lightPos = [300, 150, -600];
-
-var rectVerts = getRectangle(-50, -50, 100, 100, 100);
-var rectVerts3 = getRectangle(-50, -50, 100, 100, 100);
-var rectVerts2 = getRectangle(-100,-75, 200, 150,150);
-var lightVerts = getRectangle(0,0,10,10,10);
-
-var vao = context.createVertexArray();
-var vaoTransform = new mat(4);
-vaoTransform.position(0,0,0);
-var vao3 = context.createVertexArray();
-var vao3Transform = new mat(4);
-vao3Transform.position(0,0,0);
-
-var lightVao = context.createVertexArray();
-var lightTransform = new mat(4);
-
-
-
-
-
-var objectsToDraw = [];
-var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
-var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, texturedProgram);
-var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
-
-
-
-//switchProgram(texturedShaderProgram);
-var vao2 = context.createVertexArray();
-var vao2Transform = new mat(4);
-var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
-await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
-log(`Go!!!`);
-
-log(`Webgl Errors: ${context.getError()}`);
-
-log(`Webgl Errors: ${context.getError()}`);
-function setupCube(attrib, data, context, objTransform, shaderProgram){
-  var positionBuffer = context.createBuffer();
-  context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
-  context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
-  context.bindVertexArray(attrib);
-  var size = 3;
-  var type = context.FLOAT;
-  var normalize = false;
-  var stride = 0;
-  var offset = 0;
-  var primitiveType = context.TRIANGLES;
-  var count = 36;
-  var positionLocation = shaderProgram.getLocation(ATTRIB_POSITION);
-  if(positionLocation != -1){
-    context.enableVertexAttribArray(positionLocation);
-    context.vertexAttribPointer(positionLocation, size, type, normalize, 36, offset);
+  function switchProgram(newProgram){
+      context.useProgram(newProgram);
+      activeProgram = newProgram;
   }
-  
-  var normalLocation = shaderProgram.getLocation(ATTRIB_NORMAL);
-  if(normalLocation != -1){
-    context.enableVertexAttribArray(normalLocation);
-    context.vertexAttribPointer(normalLocation, size, type, normalize, 36, 3*4);
-  }
-  
-  var vertexLocation = shaderProgram.getLocation(ATTRIB_VERTEX_COLOR);
-  if(vertexLocation != -1){
-    context.enableVertexAttribArray(vertexLocation);
-    context.vertexAttribPointer(vertexLocation,size, type, normalize, 36, 6*4);
-  } 
-  
-  objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform, shaderProgram})
-  return objectsToDraw.length-1;
-}
+  var rectSize = [ 100, 100 ];
 
-async function appendTextureToCube(cubeIndex, textureSource){
+  var lightPos = [300, 150, -600];
+
+  var rectVerts = getRectangle(-50, -50, 100, 100, 100);
+  var rectVerts3 = getRectangle(-50, -50, 100, 100, 100);
+  var rectVerts2 = getRectangle(-100,-75, 200, 150,150);
+  var lightVerts = getRectangle(0,0,10,10,10);
+
+  var vao = context.createVertexArray();
+  var vaoTransform = new mat(4);
+  vaoTransform.position(0,0,0);
+  var vao3 = context.createVertexArray();
+  var vao3Transform = new mat(4);
+  vao3Transform.position(0,0,0);
+
+  var lightVao = context.createVertexArray();
+  var lightTransform = new mat(4);
+
+
+
+
+
+  var objectsToDraw = [];
+  var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
+  var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, texturedProgram);
+  var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
+
+
+
+  //switchProgram(texturedShaderProgram);
+  var vao2 = context.createVertexArray();
+  var vao2Transform = new mat(4);
+  var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
+  await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
+  log(`Go!!!`);
+
+  log(`Webgl Errors: ${context.getError()}`);
+
+  log(`Webgl Errors: ${context.getError()}`);
+  function setupCube(attrib, data, context, objTransform, shaderProgram){
+    var positionBuffer = context.createBuffer();
+    context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
+    context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
+    context.bindVertexArray(attrib);
+    var size = 3;
+    var type = context.FLOAT;
+    var normalize = false;
+    var stride = 0;
+    var offset = 0;
+    var primitiveType = context.TRIANGLES;
+    var count = 36;
+    var positionLocation = shaderProgram.getLocation(ATTRIB_POSITION);
+    if(positionLocation != -1){
+      context.enableVertexAttribArray(positionLocation);
+      context.vertexAttribPointer(positionLocation, size, type, normalize, 36, offset);
+    }
+    
+    var normalLocation = shaderProgram.getLocation(ATTRIB_NORMAL);
+    if(normalLocation != -1){
+      context.enableVertexAttribArray(normalLocation);
+      context.vertexAttribPointer(normalLocation, size, type, normalize, 36, 3*4);
+    }
+    
+    var vertexLocation = shaderProgram.getLocation(ATTRIB_VERTEX_COLOR);
+    if(vertexLocation != -1){
+      context.enableVertexAttribArray(vertexLocation);
+      context.vertexAttribPointer(vertexLocation,size, type, normalize, 36, 6*4);
+    } 
+    
+    objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform, shaderProgram})
+    return objectsToDraw.length-1;
+  }
+
+  async function appendTextureToCube(cubeIndex, textureSource){
     var shaderProgram = objectsToDraw[cubeIndex].shaderProgram;
     switchProgram(shaderProgram.getProgram());
     var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
@@ -197,125 +182,122 @@ async function appendTextureToCube(cubeIndex, textureSource){
                   srcFormat,
                   srcType,
                   img);
-}
-context.viewport(0,0, context.canvas.width, context.canvas.height);
-
-log(`Webgl Errors: ${context.getError()}`);
-log(`Webgl Errors: ${context.getError()}`);
-context.clearColor(0.1,0.25,0.2,0);
-context.clear(context.COLOR_BUFFER_BIT);
-
-var randOffset = Math.random(0,1) * 1000;
-var time = 0;
-var deg2rad = 0.017453;
-
-
-context.uniform4f(uniform_ColorLocation, Math.sin(time++), Math.sin(time++ + randOffset), 0.5, 1);
-
-
-var fieldOfView = 60;
-var near = 1;
-var far = 2000;
-var rangeInv = 1/(near-far);
-var projectionMatrix=  new mat(4);
-var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
-projectionMatrix.position(0,0,near*far* rangeInv *2);
-projectionMatrix.fudge = -1;
-var aspect = context.canvas.width / context.canvas.height;
-projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
-
-
-
-
-function resizeCanvasToDisplaySize(canvas) {
-  // Lookup the size the browser is displaying the canvas in CSS pixels.
-  const displayWidth  = canvas.clientWidth * window.devicePixelRatio;;
-  const displayHeight = canvas.clientHeight * window.devicePixelRatio;;
-  
-  // Check if the canvas is not the same size.
-  const needResize = canvas.width  !== displayWidth ||
-  canvas.height !== displayHeight;
-  
-  if (needResize) {
-    // Make the canvas the same size
-    canvas.width  = displayWidth;
-    canvas.height = displayHeight;
-    console.log(`Display Width: ${displayWidth}, Display Height: ${displayHeight}`);
   }
-  var aspect = context.canvas.width / context.canvas.height;
-  
-  projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
-  return needResize;
-}
+  context.viewport(0,0, context.canvas.width, context.canvas.height);
 
-var t = [0, 0, 0];
-var angle = 0;
-var r = [0, 0, 0];
-var s = [1, 1, 1];
-var mvp = new mat(4);
-var cameraMvp = new mat(4);
-cameraMvp.position(0, 200);
-cameraMvp.rotation(-25);
-mvp.scale(1, 1);
-mvp.position(0, 0, 0);
-mvp.rotation(0);
-var test = cameraMvp.toMvp();
-var test2 = 1;
-var tick = 0;
-function mainDraw(){
-tick = (tick + 1) % 60;
-if(tick == 0){
-//log(`Webgl Errors: ${context.getError()}`);
-}
-  if(resizeCanvasToDisplaySize(canvas)){
-    text.innerHTML = `Canvas size ${canvas.width}, ${canvas.height}`;
-    context.viewport(0,0, canvas.width, canvas.height);
-  } 
-  
-  //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
-  contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
-  //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
-  contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
-  contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
-  
-  switchProgram(basicLitShaderProgram)  
-  //context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
-  contextVariableValues["u_color", [.7,.7,0.3,1]];
-  
-  var timeDeg2Rad = time++ * deg2rad;
-  //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
-  //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
-  objectsToDraw[cube1].transform.position(-150, 0, -300);
-  objectsToDraw[cube1].transform.rotation(0,45+timeDeg2Rad,0);  
-  objectsToDraw[cube3].transform.position(200, 0, -300);
-  objectsToDraw[cube3].transform.rotation(0,45+timeDeg2Rad*50,0);
-  objectsToDraw[light].transform.position(0, 100 + Math.cos(timeDeg2Rad) * 100, -200 + Math.sin(timeDeg2Rad)* 100);
-  var lightTransform = objectsToDraw[light].transform.getPos();
-  text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
-  //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
-  contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
-  t[2] = -600;
-  t[1] = -100;
-  mvp.position(t[0], t[1], t[2]);
-  mvp.rotation(0,time++/3,0);
-  var test = mvp.toMvp();
-  //context.uniform4f(uniform_ColorLocation, Math.sin(time++ * deg2rad), Math.sin(time++ *deg2rad + randOffset), 0.5, 1);
-  context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
-  objectsToDraw.forEach((element, idx) => {
-    if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
-      //log("Switching program...");
-      switchProgram(element.shaderProgram.getProgram());
-    }
-    contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
+  log(`Webgl Errors: ${context.getError()}`);
+  log(`Webgl Errors: ${context.getError()}`);
+  context.clearColor(0.1,0.25,0.2,0);
+  context.clear(context.COLOR_BUFFER_BIT);
+
+  var randOffset = Math.random(0,1) * 1000;
+  var time = 0;
+  var deg2rad = 0.017453;
+
+
+  var fieldOfView = 60;
+  var near = 1;
+  var far = 2000;
+  var rangeInv = 1/(near-far);
+  var projectionMatrix=  new mat(4);
+  var f = Math.tan(Math.PI * 0.5 - deg2rad * fieldOfView * 0.5)
+  projectionMatrix.position(0,0,near*far* rangeInv *2);
+  projectionMatrix.fudge = -1;
+  var aspect = context.canvas.width / context.canvas.height;
+  projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+
+
+
+
+  function resizeCanvasToDisplaySize(canvas) {
+    // Lookup the size the browser is displaying the canvas in CSS pixels.
+    const displayWidth  = canvas.clientWidth * window.devicePixelRatio;;
+    const displayHeight = canvas.clientHeight * window.devicePixelRatio;;
     
-    element.shaderProgram.setVariables(contextVariables, contextVariableValues);
-    //context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
-    context.bindVertexArray(element.attrib);
-    context.drawArrays(element.primitiveType, element.offset, element.count);
-  });
-  requestAnimationFrame(mainDraw)
-}
-mainDraw();
+    // Check if the canvas is not the same size.
+    const needResize = canvas.width  !== displayWidth ||
+    canvas.height !== displayHeight;
+    
+    if (needResize) {
+      // Make the canvas the same size
+      canvas.width  = displayWidth;
+      canvas.height = displayHeight;
+      console.log(`Display Width: ${displayWidth}, Display Height: ${displayHeight}`);
+    }
+    var aspect = context.canvas.width / context.canvas.height;
+    
+    projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+    return needResize;
+    }
+
+    var t = [0, 0, 0];
+    var angle = 0;
+    var r = [0, 0, 0];
+    var s = [1, 1, 1];
+    var mvp = new mat(4);
+    var cameraMvp = new mat(4);
+    cameraMvp.position(0, 200);
+    cameraMvp.rotation(-25);
+    mvp.scale(1, 1);
+    mvp.position(0, 0, 0);
+    mvp.rotation(0);
+    var test = cameraMvp.toMvp();
+    var test2 = 1;
+    var tick = 0;
+    function mainDraw(){
+    tick = (tick + 1) % 60;
+    if(tick == 0){
+    //log(`Webgl Errors: ${context.getError()}`);
+    }
+    if(resizeCanvasToDisplaySize(canvas)){
+      text.innerHTML = `Canvas size ${canvas.width}, ${canvas.height}`;
+      context.viewport(0,0, canvas.width, canvas.height);
+    } 
+    
+    //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
+    contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
+    //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
+    contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+    contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
+    
+    switchProgram(basicLitShaderProgram)  
+
+    contextVariableValues["u_color", [.7,.7,0.3,1]];
+    
+    var timeDeg2Rad = time++ * deg2rad;
+    //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
+    //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
+    objectsToDraw[cube1].transform.position(-150, 0, -300);
+    objectsToDraw[cube1].transform.rotation(0,45+timeDeg2Rad,0);  
+    objectsToDraw[cube3].transform.position(200, 0, -300);
+    objectsToDraw[cube3].transform.rotation(0,45+timeDeg2Rad*50,0);
+    objectsToDraw[light].transform.position(0, 100 + Math.cos(timeDeg2Rad) * 100, -200 + Math.sin(timeDeg2Rad)* 100);
+    var lightTransform = objectsToDraw[light].transform.getPos();
+    text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
+    //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
+    contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
+    t[2] = -600;
+    t[1] = -100;
+    mvp.position(t[0], t[1], t[2]);
+    mvp.rotation(0,time++/3,0);
+    var test = mvp.toMvp();
+
+    context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+    objectsToDraw.forEach((element, idx) => {
+      if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
+        //log("Switching program...");
+        switchProgram(element.shaderProgram.getProgram());
+      }
+      contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
+      
+      element.shaderProgram.setVariables(contextVariables, contextVariableValues);
+      //context.uniformMatrix4fv(uniform_TransformLocation, false, objectsToDraw[idx].transform.toMvp());
+      context.bindVertexArray(element.attrib);
+      context.drawArrays(element.primitiveType, element.offset, element.count);
+    });
+    requestAnimationFrame(mainDraw)
+  }
+  mainDraw();
 
 }
 catch(error) {
