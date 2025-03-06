@@ -106,7 +106,7 @@ var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram
 //switchProgram(texturedShaderProgram);
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
-var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, texturedProgram);
+var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
 await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
 log(`Go!!!`);
 
@@ -126,16 +126,22 @@ function setupCube(attrib, data, context, objTransform, shaderProgram){
   var primitiveType = context.TRIANGLES;
   var count = 36;
   var positionLocation = shaderProgram.getLocation(ATTRIB_POSITION);
-  context.enableVertexAttribArray(positionLocation);
-  context.vertexAttribPointer(positionLocation, size, type, normalize, 36, offset);
+  if(positionLocation != -1){
+    context.enableVertexAttribArray(positionLocation);
+    context.vertexAttribPointer(positionLocation, size, type, normalize, 36, offset);
+  }
   
   var normalLocation = shaderProgram.getLocation(ATTRIB_NORMAL);
-  context.enableVertexAttribArray(normalLocation);
-  context.vertexAttribPointer(normalLocation, size, type, normalize, 36, 3*4);
+  if(normalLocation != -1){
+    context.enableVertexAttribArray(normalLocation);
+    context.vertexAttribPointer(normalLocation, size, type, normalize, 36, 3*4);
+  }
   
   var vertexLocation = shaderProgram.getLocation(ATTRIB_VERTEX_COLOR);
-  context.enableVertexAttribArray(vertexLocation);
-  context.vertexAttribPointer(vertexLocation,size, type, normalize, 36, 6*4);
+  if(vertexLocation != -1){
+    context.enableVertexAttribArray(vertexLocation);
+    context.vertexAttribPointer(vertexLocation,size, type, normalize, 36, 6*4);
+  } 
   
   objectsToDraw.push({attrib, offset:0,count, primitiveType, transform: objTransform, shaderProgram})
   return objectsToDraw.length-1;
