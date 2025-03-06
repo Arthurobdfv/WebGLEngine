@@ -3,6 +3,7 @@ import { mat } from './matrix.mjs';
 import './shaderConstants.mjs';
 import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TEXTURE_IMAGE, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
 import { log, glContext, ShaderProgram, compileShader,getRectangle, getCubeUVCoords } from './glContext.mjs';
+import loadImage from './webHelpers.mjs';
 
 
 
@@ -106,7 +107,7 @@ var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, texturedProgram);
-appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
+await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
 log(`Go!!!`);
 
 log(`Webgl Errors: ${context.getError()}`);
@@ -137,36 +138,38 @@ function setupCube(attrib, data, context, objTransform, shaderProgram){
   return objectsToDraw.length-1;
 }
 
-function appendTextureToCube(cubeIndex, textureSource){
-  var shaderProgram = objectsToDraw[cubeIndex].shaderProgram;
-  switchProgram(shaderProgram.getProgram());
-  var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
-  log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
-  var img = new Image();
-  img.onload = function() { 
-    log(`Ready...`);
-    
-   }
-  img.src = textureSource;
-  contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
-  var cubeToChange = objectsToDraw[cubeIndex];
-  var cubeUVCoords = getCubeUVCoords();
-  var coordBuffer = context.createBuffer();
-  context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
-log(`Webgl Errors: ${context.getError()}`);
-log(`Setting Coord buffer data`);
-  context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
-  log(`Webgl Errors: ${context.getError()}`);
- log(`Enabling texCoordAttribArray, location: ${texCoordAttributeLocation}`); context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
- log(`Webgl Errors: ${context.getError()}`); context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
-  log(`Webgl Errors: ${context.getError()}`);
+async function appendTextureToCube(cubeIndex, textureSource){
+    var shaderProgram = objectsToDraw[cubeIndex].shaderProgram;
+    switchProgram(shaderProgram.getProgram());
+    var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
+    log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
+    var img = new Image();
+    img.onload = function() { 
+      log(`Ready...`);
+      
+    }
 
-log(`Webgl Errors: ${context.getError()}`);
-log(`Webgl Errors: ${context.getError()}`);
-log(`Finished setting up texture for cube ${cubeIndex}`);
+    var imgPromise = loadImage(textureSource);
+    img.src = textureSource;
+    contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
+    var cubeToChange = objectsToDraw[cubeIndex];
+    var cubeUVCoords = getCubeUVCoords();
+    var coordBuffer = context.createBuffer();
+    context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
+    log(`Webgl Errors: ${context.getError()}`);
+    log(`Setting Coord buffer data`);
+    context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
+    log(`Webgl Errors: ${context.getError()}`);
+    log(`Enabling texCoordAttribArray, location: ${texCoordAttributeLocation}`); context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
+    log(`Webgl Errors: ${context.getError()}`); context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
+    log(`Webgl Errors: ${context.getError()}`);
+
+    log(`Webgl Errors: ${context.getError()}`);
+    log(`Webgl Errors: ${context.getError()}`);
+    log(`Finished setting up texture for cube ${cubeIndex}`);
 
 
-var texture = context.createTexture();
+    var texture = context.createTexture();
     context.activeTexture(context.TEXTURE0 + 0);
     context.bindTexture(context.TEXTURE_2D, texture);
     
@@ -182,6 +185,9 @@ var texture = context.createTexture();
     var srcFormat = context.RGBA;        // format of data we are supplying
     var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
     log(`Supplying texture image data for cube`);
+    
+    var img = await imgPromise;
+    log(`Ready...`)
     log(`Set...`);
     context.texImage2D(context.TEXTURE_2D,
                   mipLevel,
