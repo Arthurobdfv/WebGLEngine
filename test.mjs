@@ -83,22 +83,23 @@ try {
 
   var objectsToDraw = [];
   var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
-  var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, texturedProgram);
   var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
-
-
-
-  //switchProgram(texturedShaderProgram);
+  
+  switchProgram(texturedShaderProgram);
+  var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, texturedProgram);
+  await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
+  
+  
   var vao2 = context.createVertexArray();
   var vao2Transform = new mat(4);
-  var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
-  await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
+  //var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, testProgram);
   log(`Go!!!`);
 
   log(`Webgl Errors: ${context.getError()}`);
 
   log(`Webgl Errors: ${context.getError()}`);
   function setupCube(attrib, data, context, objTransform, shaderProgram){
+    switchProgram(shaderProgram.getProgram());
     var positionBuffer = context.createBuffer();
     context.bindBuffer(context.ARRAY_BUFFER, positionBuffer);
     context.bufferData(context.ARRAY_BUFFER, new Float32Array(data), context.STATIC_DRAW);
