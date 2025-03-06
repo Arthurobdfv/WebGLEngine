@@ -66,12 +66,7 @@ log(`Webgl Errors: ${context.getError()}`);
 log(`Webgl Errors: ${context.getError()}`);
 
 
-log(`Webgl Errors: ${context.getError()}`);
-log(`Webgl Errors: ${context.getError()}`);
 
-
-log(`Webgl Errors: ${context.getError()}`);
-log(`Webgl Errors: ${context.getError()}`);
 var texturedProgram = new aux.ShaderProgram(basicLitTexturedVertexShaderSource, basicLitTexturedFragShaderSource, context, contextVariables);
 var texCoordAttributeLocation = texturedProgram.getLocation(ATTRIB_TEXTURE_COORD);
   
@@ -145,6 +140,7 @@ function setupCube(attrib, data, context, objTransform, shaderProgram){
 }
 
 function appendTextureToCube(cubeIndex, textureSource){
+log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
   var img = new Image();
   img.onload = function() { console.log("Loaded Image!"); }
   img.src = textureSource;
@@ -153,30 +149,36 @@ function appendTextureToCube(cubeIndex, textureSource){
   var cubeUVCoords = aux.getCubeUVCoords();
   var coordBuffer = context.createBuffer();
   context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
+log(`Webgl Errors: ${context.getError()}`);
+log(`Setting Coord buffer data`);
   context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
-  
+  log(`Webgl Errors: ${context.getError()}`);
   context.enableVertexAttribArray(texCoordAttributeLocation);
   context.vertexAttribPointer(texCoordAttributeLocation, 2, context.FLOAT, true, 0,0);
-  
+  log(`Webgl Errors: ${context.getError()}`);
   var texture = context.createTexture();
   context.activeTexture(context.TEXTURE0 + 0);
   context.bindTexture(context.TEXTURE_2D, texture);
   
-  
-  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
-  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
-  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
-  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+  log(`Webgl Errors: ${context.getError()}`);
+ log(`Configuring texture`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+ log(`Webgl Errors: ${context.getError()}`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+ log(`Webgl Errors: ${context.getError()}`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+ log(`Webgl Errors: ${context.getError()}`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
   var mipLevel = 0;               // the largest mip
   var internalFormat = context.RGBA;   // format we want in the texture
   var srcFormat = context.RGBA;        // format of data we are supplying
   var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
+log(`Supplying texture image data for cube`);
   context.texImage2D(context.TEXTURE_2D,
                 mipLevel,
                 internalFormat,
                 srcFormat,
                 srcType,
                 img);
+log(`Webgl Errors: ${context.getError()}`);
+log(`Webgl Errors: ${context.getError()}`);
+log(`Finished setting up texture for cube ${cubeIndex}`);
 }
 context.viewport(0,0, context.canvas.width, context.canvas.height);
 
