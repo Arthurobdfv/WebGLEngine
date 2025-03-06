@@ -160,7 +160,6 @@ async function appendTextureToCube(cubeIndex, textureSource){
 
     var imgPromise = loadImage(textureSource);
     img.src = textureSource;
-    contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
     var cubeToChange = objectsToDraw[cubeIndex];
     var cubeUVCoords = getCubeUVCoords();
     var coordBuffer = context.createBuffer();
@@ -283,6 +282,7 @@ if(tick == 0){
   contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
   //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
   contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+  contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
   
   switchProgram(basicLitShaderProgram)  
   //context.uniform4f(uniform_ColorLocation,.7, .7, 0.3, 1);
