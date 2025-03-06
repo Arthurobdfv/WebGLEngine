@@ -93,11 +93,9 @@ void main() {
   // Just set the output to a constant reddish-purple
   float intensity = 0.3;
   float NdotL = dot(normalize(v_lightPos-v_pos), normalize(v_normal));
-  //outColor = vec4(u_color.xyz * NdotL * intensity,1);
-  //outColor = v_vertexColor;
-outColor = vec4(vec3(texture(u_image, v_texCoord).xyz),1);
-//outColor = vec4(vec3(normalize(v_lightPos-v_pos)),1);
-//outColor = vec4(vec3(NdotL),1);
+
+  outColor = texture(u_image, v_texCoord);
+
 }
 
 `;
