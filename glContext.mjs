@@ -1,3 +1,14 @@
+
+
+
+
+var textBox = document.getElementById('textarea');
+export function log(message){
+  textBox.innerHTML += '\n' + message;
+  textBox.style.height = 'auto';
+  textBox.style.height = `${textBox.scrollHeight}px`;
+}
+
 export const glContext = document.getElementById('canvas').getContext('webgl2');
 
 export function compileShader(WebGLContext, shaderType, sourceCode){
@@ -5,12 +16,14 @@ export function compileShader(WebGLContext, shaderType, sourceCode){
     WebGLContext.shaderSource(shader, sourceCode);
     WebGLContext.compileShader(shader);
     var success = WebGLContext.getShaderParameter(shader, WebGLContext.COMPILE_STATUS);
+    var message = '';
     if(success){
-        console.log('Vertex is okay')
+        message += 'Vertex is okay\n';
     } else {
-        console.log('Vertex is NOT okay')
+        message += 'Vertex is NOT okay\n';
     }
-    console.log(WebGLContext.getShaderInfoLog(shader));
+    message += WebGLContext.getShaderInfoLog(shader);
+    log(message);
     return shader;
 }
 
@@ -21,11 +34,10 @@ export function createProgram(WebGLContext, vertexShader, fragShader){
     WebGLContext.linkProgram(program);
     var success = WebGLContext.getProgramParameter(program, WebGLContext.LINK_STATUS);
     if(success){
-        console.log('WebGL Program Created and Linked Successfully!');
+        log('WebGL Program Created and Linked Successfully!\n');
         return program;
     }
-
-    console.log(WebGLContext.getProgramInfoLog(program));
+    log(WebGLContext.getProgramInfoLog(program));
     WebGLContext.deleteProgram(program);
 }
 
@@ -144,17 +156,28 @@ export function setRectangle(gl, x, y, width, height) {
 
     )
   }
-
+  
   export class ShaderProgram {
+        static shaderCount = 1;  
         program;
         context;
         attribs = [];
+        name;
         /**
          *
          */
-        constructor(vertexSource, fragSource, glContextt, contextVariables = []) {
-var vertexShader = compileShader(glContext, glContext.VERTEX_SHADER, vertexSource);
-var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource);
+        constructor(vertexSource, fragSource, glContextt, contextVariables = [], shaderProgramName = null) {
+            if(shaderProgramName == null){
+                this.name = `ShaderProgram_${ShaderProgram.shaderCount}`
+                ++ShaderProgram.shaderCount;
+            }
+            else {
+                this.name = shaderProgramName;
+                ++ShaderProgram.shaderCount
+            }
+            log(`Loading shader ${this.name}`);
+            var vertexShader = compileShader(glContext, glContext.VERTEX_SHADER, vertexSource);
+            var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource);
             this.program = createProgram(glContext, vertexShader, fragShader);
             this.context = glContext; 
             if(contextVariables.length != 0){
@@ -162,10 +185,15 @@ var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource)
                     var loc = glContext.getAttribLocation(this.program,element.name);
                     if(loc != -1){
                         this.attribs[element.name] = { uniform: false, location: loc};
+                        log(`Attribute named ${element.name} found for shaderProgram ${this.name}, with location: ${loc}`);
                     } else {
                         var uloc = glContext.getUniformLocation(this.program,element.name);
                         if(uloc != null){
+                            log(`Uniform named ${element.name} found for shaderProgram ${this.name}, with location: ${uloc}`);
                             this.attribs[element.name] = { uniform: true, location: uloc, type: element.type};  
+                        }
+                        else{
+                            log(`Not a Uniform nor an Attribute named ${element.name} were fount on shaderProgram ${this.name}`);
                         }
                     }
                 });
@@ -205,6 +233,9 @@ var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource)
                 case 'm4t':
                     glContext.uniformMatrix4fv(location, false ,value);
                     break;
+                case 'i':
+                    glContext.uniform1i(location, value);
+                    break;
             }
         }
 
@@ -212,6 +243,7 @@ var fragShader = compileShader(glContext, glContext.FRAGMENT_SHADER, fragSource)
             var loc = -1;
             if(parameter in this.attribs)
                 loc = this.attribs[parameter].location;
+            log(`${this.name} shaderProgram being requested for attrib ${parameter}, location found: ${loc}`);
             return loc;
         }
 
