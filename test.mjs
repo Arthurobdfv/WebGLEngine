@@ -1,17 +1,11 @@
-import * as aux from './glContext.mjs';
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 import './shaderConstants.mjs';
-import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
+import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TEXTURE_IMAGE, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
+import { log, glContext, ShaderProgram, compileShader,getRectangle, getCubeUVCoords } from './glContext.mjs';
 
 
-var textBox = document.getElementById('textarea');
 
-function log(message){
-  textBox.innerHTML += '\n' + message;
-  textBox.style.height = 'auto';
-  textBox.style.height = `${textBox.scrollHeight}px`;
-}
 
 try {
 
@@ -20,7 +14,7 @@ try {
   var text = document.getElementById('canvas-size');
   console.log(canvas);
   
-  var context = aux.glContext;
+  var context = glContext;
   console.log(context);
   context.enable(context.DEPTH_TEST);
   var activeProgram = null;
@@ -36,16 +30,20 @@ try {
   contextVariables.push({name: UNIFORM_TRANSFORMATION_MAT, uniform: true, type: "m4", value: null});
   contextVariables.push({name: "u_lightPos", uniform: true, type: "v3", value: null});
   contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
-  contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, value: null});
+  contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, type: "v2", value: null});
+  contextVariables.push({name: UNIFORM_TEXTURE_IMAGE, uniform: true, value: null});
+
+
+  UNIFORM_TEXTURE_IMAGE
   var contextVariableValues = {}; 
   contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
-  var testProgram = new aux.ShaderProgram(basicLitVertexShaderSource, basicLitFragShaderSource, context, contextVariables);
+  var testProgram = new ShaderProgram(basicLitVertexShaderSource, basicLitFragShaderSource, context, contextVariables, "Basic_Lit_Shader_Program");
   var basicLitShaderProgram = testProgram.getProgram();
   log(`Webgl Errors: ${context.getError()}`);
   log(`Webgl Errors: ${context.getError()}`);
-  var vertexTexShader = aux.compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
-  var fragTexShader = aux.compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
-  //var texturedShaderProgram = aux.createProgram(context, vertexTexShader, fragTexShader);
+  var vertexTexShader = compileShader(context, context.VERTEX_SHADER, basicLitTexturedVertexShaderSource);
+  var fragTexShader = compileShader(context, context.FRAGMENT_SHADER, basicLitTexturedFragShaderSource);
+  //var texturedShaderProgram = createProgram(context, vertexTexShader, fragTexShader);
   switchProgram(basicLitShaderProgram);
   log(`Webgl Errors: ${context.getError()}`);
   log(`Webgl Errors: ${context.getError()}`);
@@ -67,7 +65,7 @@ log(`Webgl Errors: ${context.getError()}`);
 
 
 
-var texturedProgram = new aux.ShaderProgram(basicLitTexturedVertexShaderSource, basicLitTexturedFragShaderSource, context, contextVariables);
+var texturedProgram = new ShaderProgram(basicLitTexturedVertexShaderSource, basicLitTexturedFragShaderSource, context, contextVariables, "Textured_Program");
 var texCoordAttributeLocation = texturedProgram.getLocation(ATTRIB_TEXTURE_COORD);
   
 function switchProgram(newProgram){
@@ -78,10 +76,10 @@ var rectSize = [ 100, 100 ];
 
 var lightPos = [300, 150, -600];
 
-var rectVerts = aux.getRectangle(-50, -50, 100, 100, 100);
-var rectVerts3 = aux.getRectangle(-50, -50, 100, 100, 100);
-var rectVerts2 = aux.getRectangle(-100,-75, 200, 150,150);
-var lightVerts = aux.getRectangle(0,0,10,10,10);
+var rectVerts = getRectangle(-50, -50, 100, 100, 100);
+var rectVerts3 = getRectangle(-50, -50, 100, 100, 100);
+var rectVerts2 = getRectangle(-100,-75, 200, 150,150);
+var lightVerts = getRectangle(0,0,10,10,10);
 
 var vao = context.createVertexArray();
 var vaoTransform = new mat(4);
@@ -99,7 +97,7 @@ var lightTransform = new mat(4);
 
 var objectsToDraw = [];
 var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
-var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, testProgram);
+var cube3 = setupCube(vao3, rectVerts3, context, vao3Transform, texturedProgram);
 var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
 
 
@@ -108,7 +106,7 @@ var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, texturedProgram);
-appendTextureToCube(cube2,'./textures/brick 10 - 128x128.png');
+appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
 
 
 log(`Webgl Errors: ${context.getError()}`);
@@ -140,42 +138,50 @@ function setupCube(attrib, data, context, objTransform, shaderProgram){
 }
 
 function appendTextureToCube(cubeIndex, textureSource){
-log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
+  var shaderProgram = objectsToDraw[cubeIndex].shaderProgram;
+  switchProgram(shaderProgram.getProgram());
+  var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
+  log(`Called appendTextureToCube on CubeIndex ${cubeIndex}`);
   var img = new Image();
-  img.onload = function() { console.log("Loaded Image!"); }
-  img.src = textureSource;
+  img.onload = function() { 
+
+    var texture = context.createTexture();
+    context.activeTexture(context.TEXTURE0 + 0);
+    context.bindTexture(context.TEXTURE_2D, texture);
+    
+    log(`Configuring texture`);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+    log(`Webgl Errors: ${context.getError()}`);
   
+    var mipLevel = 0;               // the largest mip
+    var internalFormat = context.RGBA;   // format we want in the texture
+    var srcFormat = context.RGBA;        // format of data we are supplying
+    var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
+    log(`Supplying texture image data for cube`);
+    context.texImage2D(context.TEXTURE_2D,
+                  mipLevel,
+                  internalFormat,
+                  srcFormat,
+                  srcType,
+                  img);
+   }
+  img.src = textureSource;
+  contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
   var cubeToChange = objectsToDraw[cubeIndex];
-  var cubeUVCoords = aux.getCubeUVCoords();
+  var cubeUVCoords = getCubeUVCoords();
   var coordBuffer = context.createBuffer();
   context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
 log(`Webgl Errors: ${context.getError()}`);
 log(`Setting Coord buffer data`);
   context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
   log(`Webgl Errors: ${context.getError()}`);
- log(`Enabling texCoordAttribArray, location: ${texCoordAttributeLocation}`); context.enableVertexAttribArray(texCoordAttributeLocation);
- log(`Webgl Errors: ${context.getError()}`); context.vertexAttribPointer(texCoordAttributeLocation, 2, context.FLOAT, true, 0,0);
+ log(`Enabling texCoordAttribArray, location: ${texCoordAttributeLocation}`); context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
+ log(`Webgl Errors: ${context.getError()}`); context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
   log(`Webgl Errors: ${context.getError()}`);
-  var texture = context.createTexture();
-  context.activeTexture(context.TEXTURE0 + 0);
-  context.bindTexture(context.TEXTURE_2D, texture);
-  
-  log(`Webgl Errors: ${context.getError()}`);
- log(`Configuring texture`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
- log(`Webgl Errors: ${context.getError()}`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
- log(`Webgl Errors: ${context.getError()}`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
- log(`Webgl Errors: ${context.getError()}`); context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
-  var mipLevel = 0;               // the largest mip
-  var internalFormat = context.RGBA;   // format we want in the texture
-  var srcFormat = context.RGBA;        // format of data we are supplying
-  var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
-log(`Supplying texture image data for cube`);
-  context.texImage2D(context.TEXTURE_2D,
-                mipLevel,
-                internalFormat,
-                srcFormat,
-                srcType,
-                img);
+
 log(`Webgl Errors: ${context.getError()}`);
 log(`Webgl Errors: ${context.getError()}`);
 log(`Finished setting up texture for cube ${cubeIndex}`);
@@ -247,7 +253,7 @@ var tick = 0;
 function mainDraw(){
 tick = (tick + 1) % 60;
 if(tick == 0){
-log(`Webgl Errors: ${context.getError()}`);
+//log(`Webgl Errors: ${context.getError()}`);
 }
   if(resizeCanvasToDisplaySize(canvas)){
     text.innerHTML = `Canvas size ${canvas.width}, ${canvas.height}`;
@@ -284,7 +290,7 @@ log(`Webgl Errors: ${context.getError()}`);
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
   objectsToDraw.forEach((element, idx) => {
     if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
-      log("Switching program...");
+      //log("Switching program...");
       switchProgram(element.shaderProgram.getProgram());
     }
     contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
