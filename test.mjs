@@ -107,7 +107,7 @@ var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram
 var vao2 = context.createVertexArray();
 var vao2Transform = new mat(4);
 var cube2 = setupCube(vao2, rectVerts2, context, vao2Transform, texturedProgram);
-await appendTextureToCube(cube3,'./textures/brick 10 - 128x128.png');
+await appendTextureToCube(cube3,'/textures/brick 10 - 128x128.png');
 log(`Go!!!`);
 
 log(`Webgl Errors: ${context.getError()}`);
