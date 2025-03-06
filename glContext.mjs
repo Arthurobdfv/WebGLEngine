@@ -112,12 +112,12 @@ export function setRectangle(gl, x, y, width, height) {
     var stepX = 0.33;
     var stepY = 0.25;
     return new Float32Array([
-        stepX,      0,
         stepX,      stepY,
         2*stepX,    0,
-        stepX,      stepY,
+        stepX,      0,
         2*stepX,    stepY,
         2*stepX,    0,
+        stepX,      stepY,
 
         stepX,      0       +stepY,
         stepX,      stepY   +stepY,
