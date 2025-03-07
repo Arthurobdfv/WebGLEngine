@@ -249,7 +249,6 @@ try {
     //log(`Webgl Errors: ${context.getError()}`);
     }
     if(resizeCanvasToDisplaySize(canvas)){
-      text.innerHTML = `Canvas size ${canvas.width}, ${canvas.height}`;
       context.viewport(0,0, canvas.width, canvas.height);
     } 
     
@@ -263,7 +262,7 @@ try {
 
     contextVariableValues["u_color", [.7,.7,0.3,1]];
     
-    var timeDeg2Rad = time++ * deg2rad;
+    var timeDeg2Rad = time++ * deg2rad * 2;
     //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
     //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
     objectsToDraw[cube1].transform.position(-150, 0, -300);
@@ -272,7 +271,6 @@ try {
     objectsToDraw[cube3].transform.rotation(0,45+timeDeg2Rad*50,0);
     objectsToDraw[light].transform.position(0, 100 + Math.cos(timeDeg2Rad) * 100, -200 + Math.sin(timeDeg2Rad)* 100);
     var lightTransform = objectsToDraw[light].transform.getPos();
-    text.innerHTML = `Light pos is ${lightTransform[0]}, ${lightTransform[1]}, ${lightTransform[2]}`;
     //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
     contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
     t[2] = -600;

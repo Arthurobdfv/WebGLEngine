@@ -57,52 +57,52 @@ export function getRectangle(x, y, width, height, depth = 10){
     var y1 = y;
     var y2 = y + height;
     return new Float32Array([
-        x1, y2, 0,       0, 0,-1,   1, 0, 0,
-        x2, y1, 0,       0, 0,-1,   1, 0, 0,
-        x1, y1, 0,       0, 0,-1,   1, 0, 0,
-        x2, y2, 0,       0, 0,-1,   1, 0, 0,
-        x2, y1, 0,       0, 0,-1,   1, 0, 0,
-        x1, y2, 0,       0, 0,-1,   1, 0, 0,
+        x1, y2, 0,       0, 0,-1,   1, 0, 0,    // 0
+        x2, y1, 0,       0, 0,-1,   1, 0, 0,    // 1
+        x1, y1, 0,       0, 0,-1,   1, 0, 0,    // 2
+        x2, y2, 0,       0, 0,-1,   1, 0, 0,    // 3
+        x2, y1, 0,       0, 0,-1,   1, 0, 0,    // 4
+        x1, y2, 0,       0, 0,-1,   1, 0, 0,    // 5
         
         // top side
-        x2, y2,0,        0, 1, 0,   0, 1, 1,
-        x1, y2,0,        0, 1, 0,   0, 1, 1,
-        x1, y2,depth,    0, 1, 0,   0, 1, 1,
-        x1, y2,depth,    0, 1, 0,   0, 1, 1,
-        x2, y2,depth,    0, 1, 0,   0, 1, 1,
-        x2, y2,0,        0, 1, 0,   0, 1, 1,
+        x2, y2,0,        0, 1, 0,   0, 1, 1,    // 6
+        x1, y2,0,        0, 1, 0,   0, 1, 1,    // 7
+        x1, y2,depth,    0, 1, 0,   0, 1, 1,    // 8
+        x1, y2,depth,    0, 1, 0,   0, 1, 1,    // 9
+        x2, y2,depth,    0, 1, 0,   0, 1, 1,    // 10
+        x2, y2,0,        0, 1, 0,   0, 1, 1,    // 11
         
         // back side
-        x1, y2, depth,   0, 0, 1,   1, 0, 1,
-        x2, y1, depth,   0, 0, 1,   1, 0, 1,
-        x2, y2, depth,   0, 0, 1,   1, 0, 1,
-        x1, y1, depth,   0, 0, 1,   1, 0, 1,
-        x2, y1, depth,   0, 0, 1,   1, 0, 1,
-        x1, y2, depth,   0, 0, 1,   1, 0, 1,
+        x1, y2, depth,   0, 0, 1,   1, 0, 1,    // 12
+        x2, y1, depth,   0, 0, 1,   1, 0, 1,    // 13
+        x2, y2, depth,   0, 0, 1,   1, 0, 1,    // 14
+        x1, y1, depth,   0, 0, 1,   1, 0, 1,    // 15
+        x2, y1, depth,   0, 0, 1,   1, 0, 1,    // 16
+        x1, y2, depth,   0, 0, 1,   1, 0, 1,    // 17
         
         // Bottom Side
-        x2, y1,0,        0,-1, 0,   0, 0, 1,
-        x1, y1,depth,    0,-1, 0,   0, 0, 1,
-        x1, y1,0,        0,-1, 0,   0, 0, 1,
-        x2, y1,0,        0,-1, 0,   0, 0, 1,
-        x2, y1,depth,    0,-1, 0,   0, 0, 1,
-        x1, y1,depth,    0,-1, 0,   0, 0, 1,
+        x2, y1,0,        0,-1, 0,   0, 0, 1,    // 18
+        x1, y1,depth,    0,-1, 0,   0, 0, 1,    // 19
+        x1, y1,0,        0,-1, 0,   0, 0, 1,    // 20
+        x2, y1,0,        0,-1, 0,   0, 0, 1,    // 21
+        x2, y1,depth,    0,-1, 0,   0, 0, 1,    // 22
+        x1, y1,depth,    0,-1, 0,   0, 0, 1,    // 23
         
         // Left Side?
-        x1,y2,depth,    -1, 0, 0,   1, 1, 0,
-        x1,y1,0,        -1, 0, 0,   1, 1, 0,
-        x1,y1,depth,    -1, 0, 0,   1, 1, 0,
-        x1,y2,0,        -1, 0, 0,   1, 1, 0,
-        x1,y1,0,        -1, 0, 0,   1, 1, 0,
-        x1,y2,depth,    -1, 0, 0,   1, 1, 0,
+        x1,y2,depth,    -1, 0, 0,   1, 1, 0,    // 24
+        x1,y1,0,        -1, 0, 0,   1, 1, 0,    // 25
+        x1,y1,depth,    -1, 0, 0,   1, 1, 0,    // 26
+        x1,y2,0,        -1, 0, 0,   1, 1, 0,    // 27
+        x1,y1,0,        -1, 0, 0,   1, 1, 0,    // 28
+        x1,y2,depth,    -1, 0, 0,   1, 1, 0,    // 29
 
         // Right Side?
-        x2,y2,depth,     1, 0, 0,   0, 1, 0,
-        x2,y1,depth,     1, 0, 0,   0, 1, 0,
-        x2,y1,0,         1, 0, 0,   0, 1, 0,
-        x2,y2,0,         1, 0, 0,   0, 1, 0,
-        x2,y2,depth,     1, 0, 0,   0, 1, 0,
-        x2,y1,0,         1, 0, 0,   0, 1, 0,
+        x2,y2,depth,     1, 0, 0,   0, 1, 0,    // 30
+        x2,y1,depth,     1, 0, 0,   0, 1, 0,    // 31
+        x2,y1,0,         1, 0, 0,   0, 1, 0,    // 23
+        x2,y2,0,         1, 0, 0,   0, 1, 0,    // 33
+        x2,y2,depth,     1, 0, 0,   0, 1, 0,    // 34
+        x2,y1,0,         1, 0, 0,   0, 1, 0,    // 35
 
 
 
@@ -143,19 +143,20 @@ export function getRectangle(x, y, width, height, depth = 10){
         2*stepX,    0       +3*stepY,
         stepX,      stepY   +3*stepY,
 
-        stepX + stepX,      0       +2*stepY,
-        stepX + stepX,      stepY   +2*stepY,
-        2*stepX + stepX,    0       +2*stepY,
-        stepX + stepX,      stepY   +2*stepY,
-        2*stepX + stepX,    stepY   +2*stepY,
-        2*stepX + stepX,    0       +2*stepY,
-
-        stepX - stepX,      0       +2*stepY,
-        stepX - stepX,      stepY   +2*stepY,
         2*stepX - stepX,    0       +2*stepY,
         stepX - stepX,      stepY   +2*stepY,
         2*stepX - stepX,    stepY   +2*stepY,
+        stepX - stepX,      0       +2*stepY,
+        stepX - stepX,      stepY   +2*stepY,
         2*stepX - stepX,    0       +2*stepY,
+
+        stepX + stepX,      stepY   +2*stepY,
+        2*stepX + stepX,    stepY   +2*stepY,
+        2*stepX + stepX,    0       +2*stepY,
+        stepX + stepX,      0       +2*stepY,
+        stepX + stepX,      stepY   +2*stepY,
+        2*stepX + stepX,    0       +2*stepY,
+
 
     ])
   }
