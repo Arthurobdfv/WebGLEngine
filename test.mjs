@@ -12,6 +12,7 @@ try {
 
   /** @type {HTMLCanvasElement} */
   var canvas = document.getElementById('canvas');
+  var x = canvas.getContext('webgl12');
   var text = document.getElementById('canvas-size');
   console.log(canvas);
   
@@ -86,6 +87,57 @@ try {
 
 
 
+
+// RENDERING TO A TEXTURE
+
+//create to render to
+// const targetTextureWidth = 256;
+// const targetTextureHeight = 256;
+// const targetTexture = gl.createTexture();
+// gl.bindTexture(gl.TEXTURE_2D, targetTexture);
+ 
+// {
+//   // define size and format of level 0
+//   const level = 0;
+//   const internalFormat = gl.RGBA;
+//   const border = 0;
+//   const format = gl.RGBA;
+//   const type = gl.UNSIGNED_BYTE;
+//   const data = null;
+//   gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+//                 targetTextureWidth, targetTextureHeight, border,
+//                 format, type, data);
+ 
+//   // set the filtering so we don't need mips
+//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+// }
+
+
+
+// var fb = context.createFrameBuffer();
+// context.bindFramebuffer(context.FRAMEBUFFER, fb);
+
+// var attachmentPoint = context.COLOR_ATTACHMENT0;
+// context.framebufferTexture2D(context.FRAMEBUFFER, attachmentPoint, context.TEXTURE_2D, targetTexture, level);
+
+
+// We then now need to adjust the aspect ratio, call another drawFunction to draw to the texture
+// create another plane to act as a "screen" and attach this texture to that plane.
+// 
+// After that we jump to spotlights
+//
+// Then we jump to Shadows
+
+
+
+
+
+
+
+
+
   var objectsToDraw = [];
   var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
   var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
@@ -128,9 +180,6 @@ try {
   projectionMatrix.fudge = -1;
   var aspect = context.canvas.width / context.canvas.height;
   projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
-
-
-
 
   function resizeCanvasToDisplaySize(canvas) {
     // Lookup the size the browser is displaying the canvas in CSS pixels.
@@ -202,12 +251,24 @@ try {
     mvp.position(t[0], t[1], t[2]);
     mvp.rotation(0,time++/3,0);
     var test = mvp.toMvp();
-
     context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+    drawFunction();
+    requestAnimationFrame(mainDraw)
+  }
+  mainDraw();
+
+  
+  function drawFunction(programToUse = null){
     objectsToDraw.forEach((element, idx) => {
-      if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
-        //log("Switching program...");
-        switchProgram(element.shaderProgram.getProgram());
+      if(programToUse != null){
+        switchProgram(programToUse);
+      }
+      else
+      {
+        if(objectsToDraw[idx].shaderProgram.getProgram() != activeProgram){
+          //log("Switching program...");
+          switchProgram(element.shaderProgram.getProgram());
+        }
       }
       contextVariableValues[UNIFORM_TRANSFORMATION_MAT].value = objectsToDraw[idx].transform.toMvp();
       
@@ -216,18 +277,12 @@ try {
       context.bindVertexArray(element.attrib);
       context.drawArrays(element.primitiveType, element.offset, element.count);
     });
-    requestAnimationFrame(mainDraw)
   }
-  mainDraw();
-
-  
-  
-
-  
   
   
   // 3D Primitives Setup helpers
 
+  //#region HELPERS
   // This code will be moved into its own lib / module in the future, probably together with model loading  
   
   function setupCube(attrib, data, context, objTransform, shaderProgram){
@@ -317,7 +372,7 @@ async function appendTextureToCube(cubeIndex, textureSource){
     img);
 }
 
-
+//#endregion
 
 
 }
