@@ -21,6 +21,7 @@ try {
   context.enable(context.DEPTH_TEST);
   var activeProgram = null;
   log(`Webgl Errors: ${context.getError()}`);
+  var objectsToDraw = [];
 
   var contextVariables = []
   contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
@@ -117,7 +118,7 @@ function appendTexture(shaderProgram, textureSizes, texture){
   var texWidth = textureSizes[0];
   var texHeight = textureSizes[1];
   //create to render to
-  context.bindTexture(gl.TEXTURE_2D, texture);
+  context.bindTexture(context.TEXTURE_2D, texture);
 
   var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
 
@@ -136,19 +137,19 @@ function appendTexture(shaderProgram, textureSizes, texture){
   {
     // define size and format of level 0
     const level = 0;
-    const internalFormat = gl.RGBA;
+    const internalFormat = context.RGBA;
     const border = 0;
-    const format = gl.RGBA;
-    const type = gl.UNSIGNED_BYTE;
+    const format = context.RGBA;
+    const type = context.UNSIGNED_BYTE;
     const data = null;
-    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+    context.texImage2D(context.TEXTURE_2D, level, internalFormat,
                   texWidth, texHeight, border,
                   format, type, data);
     
     // set the filtering so we don't need mips
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+    context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
 
     fb = context.createFrameBuffer();
     context.bindFramebuffer(context.FRAMEBUFFER, fb);
@@ -190,7 +191,6 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
 
 
 
-  var objectsToDraw = [];
   var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
   var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
   var floorPlane = setupCube(floorPlaneVao, floorPlaneVerts, context, floorPlaneTransform, testProgram);
