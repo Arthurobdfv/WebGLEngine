@@ -50,6 +50,22 @@ export function setRectangle(gl, x, y, width, height) {
     return Math.floor(Math.random() * range);
 }
 
+export function getPlaneVerts(x, y0 = 0, z, width, length){ 
+    var x1 = x - width/2;
+    var x2 = x + width/2;
+    var z1 = z - length/2;
+    var z2 = z + length/2;
+
+    return new Float32Array([
+        x1, y0, z1,     0, 1, 0,    0, 1, 1,
+        x1, y0, z2,     0, 1, 0,    0, 1, 1,
+        x2, y0, z1,     0, 1, 0,    0, 1, 1,
+        x2, y0, z1,     0, 1, 0,    0, 1, 1,
+        x1, y0, z2,     0, 1, 0,    0, 1, 1,
+        x2, y0, z2,     0, 1, 0,    0, 1, 1,
+    ])
+}
+
 
 export function getRectangle(x, y, width, height, depth = 10){
     var x1 = x;
