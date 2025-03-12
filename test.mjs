@@ -323,7 +323,13 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
       aspect = context.canvas.width / context.canvas.height;
     } 
 
-    context.bindFramebuffer(context.FRAMEBUFFER, null);
+ contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
+    t[2] = -600;
+    t[1] = -100;
+    mvp.position(t[0], t[1], t[2]);
+    mvp.rotation(0,time++/3,0); contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);     contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+
+ context.bindFramebuffer(context.FRAMEBUFFER, null);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
     drawFunction();
