@@ -310,7 +310,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     mvp.position(t[0], t[1], t[2]);
     mvp.rotation(0,time++/3,0);
     var test = mvp.toMvp();
-    context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+    
     
     
     aspect = bindAndClear(targetTexture,fb, [targetTexture, targetTextureHeight]);
@@ -330,6 +330,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     mvp.rotation(0,time++/3,0); contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);     contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
 
  context.bindFramebuffer(context.FRAMEBUFFER, null);
+context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
     drawFunction();
