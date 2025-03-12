@@ -151,7 +151,7 @@ function appendTexture(shaderProgram, textureSizes, texture){
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
 
-    fb = context.createFrameBuffer();
+    fb = context.createFramebuffer();
     context.bindFramebuffer(context.FRAMEBUFFER, fb);
     
     var attachmentPoint = context.COLOR_ATTACHMENT0;
