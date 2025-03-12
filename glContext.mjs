@@ -8,7 +8,7 @@ export function log(message){
   textBox.style.height = 'auto';
   textBox.style.height = `${textBox.scrollHeight}px`;
 }
-
+ /** @type {WebGL2RenderingContext} */
 export const glContext = document.getElementById('canvas').getContext('webgl2');
 
 export function compileShader(WebGLContext, shaderType, sourceCode){
