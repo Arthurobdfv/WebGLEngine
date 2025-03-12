@@ -84,43 +84,81 @@ try {
   var floorPlaneTransform = new mat(4);
   // Hardcoded floor position for now
   floorPlaneTransform.position(100,-200,-500)
+  
+  var fb = null;
+  var targetTextureWidth = 256;
+  var targetTextureHeight = 256;
+  var targetTexture = context.createTexture();
+  
+  
+  
+  var screenPlaneVerts = getPlaneVerts(0, 0, 0, 300, 300);
+  var screenPlaneVao = context.createVertexArray();
+  var screenPlaneTransform = new mat(4);
+  screenPlaneTransform.position(300,400,-500)
+  screenPlaneTransform.rotation(75,0,0);
+
+  var screenPlane = setupCube(screenPlaneVao, screenPlaneVerts, context, screenPlaneTransform, texturedProgram);
+  appendTexture(texturedProgram, [targetTexture, targetTextureHeight], targetTexture);
 
 
+  // RENDERING TO A TEXTURE
+function appendTexture(shaderProgram, textureSizes, texture){
+  switchProgram(shaderProgram.getProgram());
+  var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
+  var uvData = new Float32Array([
+    0, 0,
+    0, 1,
+    1, 0,
+    1, 0,
+    0, 1,
+    1, 1,
+  ])  
+  var texWidth = textureSizes[0];
+  var texHeight = textureSizes[1];
+  //create to render to
+  context.bindTexture(gl.TEXTURE_2D, texture);
 
+  var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
 
-// RENDERING TO A TEXTURE
+  var coordBuffer = context.createBuffer();
 
-//create to render to
-// const targetTextureWidth = 256;
-// const targetTextureHeight = 256;
-// const targetTexture = gl.createTexture();
-// gl.bindTexture(gl.TEXTURE_2D, targetTexture);
- 
-// {
-//   // define size and format of level 0
-//   const level = 0;
-//   const internalFormat = gl.RGBA;
-//   const border = 0;
-//   const format = gl.RGBA;
-//   const type = gl.UNSIGNED_BYTE;
-//   const data = null;
-//   gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
-//                 targetTextureWidth, targetTextureHeight, border,
-//                 format, type, data);
- 
-//   // set the filtering so we don't need mips
-//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-//   gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-// }
+  context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
 
+  context.bufferData(context.ARRAY_BUFFER, uvData, context.STATIC_DRAW);
 
+  context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
 
-// var fb = context.createFrameBuffer();
-// context.bindFramebuffer(context.FRAMEBUFFER, fb);
+  context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
 
-// var attachmentPoint = context.COLOR_ATTACHMENT0;
-// context.framebufferTexture2D(context.FRAMEBUFFER, attachmentPoint, context.TEXTURE_2D, targetTexture, level);
+  context.activeTexture(context.TEXTURE0 + 0);
+
+  {
+    // define size and format of level 0
+    const level = 0;
+    const internalFormat = gl.RGBA;
+    const border = 0;
+    const format = gl.RGBA;
+    const type = gl.UNSIGNED_BYTE;
+    const data = null;
+    gl.texImage2D(gl.TEXTURE_2D, level, internalFormat,
+                  texWidth, texHeight, border,
+                  format, type, data);
+    
+    // set the filtering so we don't need mips
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    fb = context.createFrameBuffer();
+    context.bindFramebuffer(context.FRAMEBUFFER, fb);
+    
+    var attachmentPoint = context.COLOR_ATTACHMENT0;
+    context.framebufferTexture2D(context.FRAMEBUFFER, attachmentPoint, context.TEXTURE_2D, targetTexture, level);
+    context.bindFramebuffer(context.FRAMEBUFFER, null);
+  }   
+
+}  
 
 
 // We then now need to adjust the aspect ratio, call another drawFunction to draw to the texture
@@ -133,7 +171,21 @@ try {
 
 
 
+function bindAndClear(textureToBind, frameBuffer, textureSizes){
+  var texWidth = textureSizes[0];
+  var texHeight = textureSizes[1];
 
+  context.bindFramebuffer(context.FRAMEBUFFER, frameBuffer);
+  context.bindTexture(context.TEXTURE_2D, textureToBind);
+
+  context.viewport(0, 0, texWidth, texHeight);
+
+  context.clearColor(0,0,1,1);
+  context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+
+  var aspect = texWidth / texHeight;
+  return aspect;
+}
 
 
 
@@ -221,18 +273,14 @@ try {
     if(tick == 0){
     //log(`Webgl Errors: ${context.getError()}`);
     }
-    if(resizeCanvasToDisplaySize(canvas)){
-      context.viewport(0,0, canvas.width, canvas.height);
-    } 
     
     //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
-    contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
     //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
     contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
     contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
     
     switchProgram(basicLitShaderProgram)  
-
+    
     contextVariableValues["u_color", [.7,.7,0.3,1]];
     
     var timeDeg2Rad = time++ * deg2rad * 2;
@@ -252,7 +300,23 @@ try {
     mvp.rotation(0,time++/3,0);
     var test = mvp.toMvp();
     context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+    
+    
+    aspect = bindAndClear();
+    projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+    contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
     drawFunction();
+    
+    if(resizeCanvasToDisplaySize(canvas)){
+      context.viewport(0,0, canvas.width, canvas.height);
+      aspect = context.canvas.width / context.canvas.height;
+    } 
+
+    context.bindFramebuffer(context.FRAMEBUFFER, null);
+    projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
+    contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
+    drawFunction();
+
     requestAnimationFrame(mainDraw)
   }
   mainDraw();
@@ -334,9 +398,11 @@ async function appendTextureToCube(cubeIndex, textureSource){
   log(`Webgl Errors: ${context.getError()}`);
   log(`Setting Coord buffer data`);
   context.bufferData(context.ARRAY_BUFFER, cubeUVCoords, context.STATIC_DRAW);
+  context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
+  context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
   log(`Webgl Errors: ${context.getError()}`);
-  log(`Enabling texCoordAttribArray, location: ${texCoordAttributeLocation}`); context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
-  log(`Webgl Errors: ${context.getError()}`); context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
+  log(`Enabling texCoordAttribArray, location: ${texCoordAttributeLocation}`); 
+  log(`Webgl Errors: ${context.getError()}`); 
   log(`Webgl Errors: ${context.getError()}`);
   
   log(`Webgl Errors: ${context.getError()}`);
