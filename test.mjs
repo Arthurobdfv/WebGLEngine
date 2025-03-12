@@ -105,7 +105,8 @@ try {
 
   // RENDERING TO A TEXTURE
 function appendTexture(shaderProgram, textureSizes, texture){
-  switchProgram(shaderProgram.getProgram());
+ log(`Starting aplendTexture to ScreenObject...`);
+ switchProgram(shaderProgram.getProgram());
   var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
   var uvData = new Float32Array([
     0, 0,
@@ -117,20 +118,23 @@ function appendTexture(shaderProgram, textureSizes, texture){
   ])  
   var texWidth = textureSizes[0];
   var texHeight = textureSizes[1];
+
+log(`Texture sizes are; w${texWidth}, h${texHeight}`);
   //create to render to
   context.bindTexture(context.TEXTURE_2D, texture);
-
+log(`Webgl Errors: ${context.getError()}`);
   var textureCoordArrayAttributeLocation = shaderProgram.getLocation(ATTRIB_TEXTURE_COORD);
-
+log(`Webgl Errors: ${context.getError()}`);
   var coordBuffer = context.createBuffer();
 
   context.bindBuffer(context.ARRAY_BUFFER, coordBuffer);
 
   context.bufferData(context.ARRAY_BUFFER, uvData, context.STATIC_DRAW);
 
-  context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
+ log(`Webgl Errors: ${context.getError()}`); context.enableVertexAttribArray(textureCoordArrayAttributeLocation);
 
-  context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
+ log(`Texture created, uv bound`);
+ context.vertexAttribPointer(textureCoordArrayAttributeLocation, 2, context.FLOAT, true, 0,0);
 
   context.activeTexture(context.TEXTURE0 + 0);
 
@@ -145,18 +149,22 @@ function appendTexture(shaderProgram, textureSizes, texture){
     context.texImage2D(context.TEXTURE_2D, level, internalFormat,
                   texWidth, texHeight, border,
                   format, type, data);
-    
+
+    log(`Webgl Errors: ${context.getError()}`);
+
     // set the filtering so we don't need mips
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.LINEAR);
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
     context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
 
     fb = context.createFramebuffer();
-    context.bindFramebuffer(context.FRAMEBUFFER, fb);
-    
+   log(`Webgl Errors: ${context.getError()}`); context.bindFramebuffer(context.FRAMEBUFFER, fb);
+    log(`Webgl Errors: ${context.getError()}`);
     var attachmentPoint = context.COLOR_ATTACHMENT0;
     context.framebufferTexture2D(context.FRAMEBUFFER, attachmentPoint, context.TEXTURE_2D, targetTexture, level);
-    context.bindFramebuffer(context.FRAMEBUFFER, null);
+   log(`Webgl Errors: ${context.getError()}`); context.bindFramebuffer(context.FRAMEBUFFER, null);
+log(`Webgl Errors: ${context.getError()}`);
+log(`Frame buffer finished setup...`);
   }   
 
 }  
@@ -173,8 +181,11 @@ function appendTexture(shaderProgram, textureSizes, texture){
 
 
 function bindAndClear(textureToBind, frameBuffer, textureSizes){
+ log(`Running BindAndClear...`);
   var texWidth = textureSizes[0];
   var texHeight = textureSizes[1];
+
+ log(`Texture sizes are w:${texWidth}, h: ${texHeight}`);
 
   context.bindFramebuffer(context.FRAMEBUFFER, frameBuffer);
   context.bindTexture(context.TEXTURE_2D, textureToBind);
