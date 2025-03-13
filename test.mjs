@@ -187,7 +187,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
  log(`Texture sizes are w:${texWidth}, h: ${texHeight}`);
 
   context.bindFramebuffer(context.FRAMEBUFFER, frameBuffer);
-  context.bindTexture(context.TEXTURE_2D, textureToBind);
+  context.bindTexture(context.TEXTURE_2D, null);
 
   context.viewport(0, 0, texWidth, texHeight);
 
@@ -332,7 +332,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
 context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
-  context.bindTexture(context.TEXTURE_2D, textureToBind);
+  context.bindTexture(context.TEXTURE_2D, targetTexture);
     drawFunction();
 
     requestAnimationFrame(mainDraw)
