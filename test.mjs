@@ -87,21 +87,24 @@ try {
   // Hardcoded floor position for now
   floorPlaneTransform.position(100,-200,-500)
   
+  var defaultTexture = await loadTexture('./textures/brick 10 - 128x128.png');
+
   var fb = null;
   var targetTextureWidth = 256;
   var targetTextureHeight = 256;
   var targetTexture = context.createTexture();
   
   
-  
-  var screenPlaneVerts = getPlaneVerts(0, 0, 0, 300, 300);
+  var screenPlaneVerts = getPlaneVerts(0, 0, 0, 600, 300);
   var screenPlaneVao = context.createVertexArray();
   var screenPlaneTransform = new mat(4);
-  screenPlaneTransform.position(300,400,-500)
-  screenPlaneTransform.rotation(75,0,0);
+  screenPlaneTransform.position(50,200,-500)
+
+  var basePlaneRotation = [120,0,0];
+  screenPlaneTransform.rotation(basePlaneRotation[0],basePlaneRotation[1],basePlaneRotation[2]);
 
   var screenPlane = setupCube(screenPlaneVao, screenPlaneVerts, context, screenPlaneTransform, texturedProgram);
-  appendTexture(texturedProgram, [targetTexture, targetTextureHeight], targetTexture);
+  appendTexture(texturedProgram, [targetTextureWidth, targetTextureHeight], targetTexture);
 
 
   // RENDERING TO A TEXTURE
@@ -181,18 +184,17 @@ log(`Texture sizes are; w${texWidth}, h${texHeight}`);
 
 
 function bindAndClear(textureToBind, frameBuffer, textureSizes){
- log(`Running BindAndClear...`);
   var texWidth = textureSizes[0];
   var texHeight = textureSizes[1];
 
- log(`Texture sizes are w:${texWidth}, h: ${texHeight}`);
 
   context.bindFramebuffer(context.FRAMEBUFFER, frameBuffer);
-  context.bindTexture(context.TEXTURE_2D, null);
+  context.bindTexture(context.TEXTURE_2D, textureToBind);
 
   context.viewport(0, 0, texWidth, texHeight);
 
-  context.clearColor(0,0,1,1);
+  context.clearColor(.35,.35,.85,1);
+
   context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
 
   var aspect = texWidth / texHeight;
@@ -272,7 +274,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     var mvp = new mat(4);
     var cameraMvp = new mat(4);
     cameraMvp.position(0, 300, 150);
-    cameraMvp.rotation(-45);
+    cameraMvp.rotation(-15);
     mvp.scale(1, 1);
     mvp.position(0, 0, 0);
     mvp.rotation(0);
@@ -285,9 +287,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     //log(`Webgl Errors: ${context.getError()}`);
     }
     
-    //context.uniformMatrix4fv(uniform_ProjMatLocation, false, projectionMatrix.toMvp(0));
-    //context.uniformMatrix4fv(uniform_CameraMVPLocation, false, cameraMvp.inverse());
-    contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+
     contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
     
     switchProgram(basicLitShaderProgram)  
@@ -295,8 +295,8 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     contextVariableValues["u_color", [.7,.7,0.3,1]];
     
     var timeDeg2Rad = time++ * deg2rad * 2;
-    //objectsToDraw[cube2].transform.scale(1, 1 + 0.2*Math.cos(timeDeg2Rad*10), 1);
-    //objectsToDraw[cube1].transform.rotation(1,timeDeg2Rad*10 , 1);
+    
+    
     objectsToDraw[cube1].transform.position(-150, 0, -300);
     objectsToDraw[cube1].transform.rotation(0,45+timeDeg2Rad,0);  
     objectsToDraw[cube3].transform.position(200, 0, -300);
@@ -310,30 +310,39 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     mvp.position(t[0], t[1], t[2]);
     mvp.rotation(0,time++/3,0);
     var test = mvp.toMvp();
+    t[2] = -600;
+    t[1] = -100;
+    mvp.position(t[0], t[1], t[2]);
+    mvp.rotation(0,time++/3,0); 
     
-    
-    
-    aspect = bindAndClear(targetTexture,fb, [targetTexture, targetTextureHeight]);
+    screenPlaneTransform.rotation(basePlaneRotation[0]+180, basePlaneRotation[1]+180, basePlaneRotation[2]+180);
+    contextVariableValues[UNIFORM_CAMERA_MAT].value = screenPlaneTransform.inverse();
+    screenPlaneTransform.rotation(basePlaneRotation[0], basePlaneRotation[1], basePlaneRotation[2]);
+    screenPlaneTransform.scale(-1,1,1);
+    aspect = bindAndClear(defaultTexture,fb, [targetTextureWidth, targetTextureHeight]);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
     drawFunction();
+    
+    
     
     if(resizeCanvasToDisplaySize(canvas)){
       context.viewport(0,0, canvas.width, canvas.height);
       aspect = context.canvas.width / context.canvas.height;
     } 
-
- contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
-    t[2] = -600;
-    t[1] = -100;
-    mvp.position(t[0], t[1], t[2]);
-    mvp.rotation(0,time++/3,0); contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);     contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
-
- context.bindFramebuffer(context.FRAMEBUFFER, null);
-context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+    
+    contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
+    contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
+    contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
+    contextVariableValues[UNIFORM_CAMERA_MAT].value = cameraMvp.inverse();
+    
+    context.bindFramebuffer(context.FRAMEBUFFER, null);
+    context.bindTexture(context.TEXTURE_2D, targetTexture);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
-  context.bindTexture(context.TEXTURE_2D, targetTexture);
+    context.clearColor(.35,.35,.85,1);
+    context.clear(context.COLOR_BUFFER_BIT | context.DEPTH_BUFFER_BIT);
+  
     drawFunction();
 
     requestAnimationFrame(mainDraw)
@@ -455,6 +464,34 @@ async function appendTextureToCube(cubeIndex, textureSource){
     srcFormat,
     srcType,
     img);
+}
+
+
+async function loadTexture(textureSource){
+  var imgPromise = loadImage(textureSource);
+  var texture = context.createTexture();
+  context.activeTexture(context.TEXTURE0 + 0);
+  context.bindTexture(context.TEXTURE_2D, texture);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_S, context.CLAMP_TO_EDGE);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_WRAP_T, context.CLAMP_TO_EDGE);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MIN_FILTER, context.NEAREST);
+  context.texParameteri(context.TEXTURE_2D, context.TEXTURE_MAG_FILTER, context.NEAREST);
+  var mipLevel = 0;               // the largest mip
+  var internalFormat = context.RGBA;   // format we want in the texture
+  var srcFormat = context.RGBA;        // format of data we are supplying
+  var srcType = context.UNSIGNED_BYTE  // type of data we are supplying
+  log(`Supplying texture image data for cube`);
+  
+  var img = await imgPromise;
+  log(`Ready...`)
+  log(`Set...`);
+  context.texImage2D(context.TEXTURE_2D,
+    mipLevel,
+    internalFormat,
+    srcFormat,
+    srcType,
+    img);
+  return texture;
 }
 
 //#endregion
