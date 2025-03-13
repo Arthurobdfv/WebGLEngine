@@ -8,6 +8,7 @@ import loadImage from './webHelpers.mjs';
 
 
 
+
 try {
 
   /** @type {HTMLCanvasElement} */
