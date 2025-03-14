@@ -23,6 +23,7 @@ try {
   var activeProgram = null;
   log(`Webgl Errors: ${context.getError()}`);
   var objectsToDraw = [];
+  var lightsInScene = [];
 
   var contextVariables = []
   contextVariables.push({name: ATTRIB_POSITION, uniform: false, value: null});
@@ -326,10 +327,6 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     
     
     
-    if(resizeCanvasToDisplaySize(canvas)){
-      context.viewport(0,0, canvas.width, canvas.height);
-      aspect = context.canvas.width / context.canvas.height;
-    } 
     
     contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
     contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
@@ -338,6 +335,10 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     
     context.bindFramebuffer(context.FRAMEBUFFER, null);
     context.bindTexture(context.TEXTURE_2D, targetTexture);
+    if(resizeCanvasToDisplaySize(canvas)){
+      context.viewport(0,0, canvas.width, canvas.height);
+      aspect = context.canvas.width / context.canvas.height;
+    } 
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
     context.clearColor(.35,.35,.85,1);
