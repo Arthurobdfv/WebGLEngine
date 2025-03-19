@@ -7,6 +7,16 @@ export const UNIFORM_TEXTURE_IMAGE = `u_image`;
 export const UNIFORM_PROJECTION_MAT = `u_projMatrix`;
 export const UNIFORM_CAMERA_MAT = `u_camMvp`;
 export const UNIFORM_TRANSFORMATION_MAT = `u_transform`;
+export const UNIFORM_LIGHT_COUNT = `u_numLights`;
+export const UNIFORM_LIGHT_ARRAY = `u_lights`;
+export const UNIFORM_LIGHT_STRUCT_DIRECTION = `directionComponent`;
+export const UNIFORM_LIGHT_STRUCT_COLOR = `color`;
+export const UNIFORM_LIGHT_STRUCT_INTENSITY = `intensity`;
+export const UNIFORM_LIGHT_STRUCT_LIGHTTYPE = `lighttype`;
+
+export function lights(number) {
+  return `${UNIFORM_LIGHT_ARRAY}[${number}]`
+}
 
 
 export const basicLitFragShaderSource = `#version 300 es
@@ -116,6 +126,16 @@ uniform mat4 u_transform;
 uniform mat4 u_camMvp;
 uniform vec3 u_lightPos;
 
+struct Light {
+  vec3  ${UNIFORM_LIGHT_STRUCT_DIRECTION};
+  vec3  ${UNIFORM_LIGHT_STRUCT_COLOR};
+  float ${UNIFORM_LIGHT_STRUCT_INTENSITY};
+  int   ${UNIFORM_LIGHT_STRUCT_LIGHTTYPE};
+};
+
+uniform Light ${UNIFORM_LIGHT_ARRAY}[16];
+uniform int ${UNIFORM_LIGHT_COUNT};
+
 
 out vec3 v_normal;
 out vec3 v_pos; 
@@ -210,11 +230,12 @@ void main() {
 
 export const InjectLightStruct = `
 struct Light {
-  vec3  directionComponent;
-  vec3  color;
-  float intensity;
-  int   lightType;
+  vec3  ${UNIFORM_LIGHT_STRUCT_DIRECTION};
+  vec3  ${UNIFORM_LIGHT_STRUCT_COLOR};
+  float ${UNIFORM_LIGHT_STRUCT_INTENSITY};
+  int   ${UNIFORM_LIGHT_STRUCT_LIGHTTYPE};
 }
 
-uniform Light lights[numLights];
+uniform Light ${UNIFORM_LIGHT_ARRAY}[16];
+uniform int ${UNIFORM_LIGHT_COUNT};
 `
