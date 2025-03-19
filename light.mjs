@@ -1,4 +1,4 @@
-const LightType = {
+export const LightType = {
     Ambient: 0,
     Point: 1,
     Spot: 2,
@@ -6,16 +6,16 @@ const LightType = {
 }
 
 
-export default class Light {
+export class Light {
     LightType;
     DirectionComponent = [];
     Intensity = 1;
     Color = [];
 
-    constructor() {
-        this.LightType = LightType.Ambient;
-        this.DirectionComponent = [-1,-1,-1];            
-        this.Color = [0.7,0.7,0.4];            
+    constructor(lightType = null, direction = null, color = null) {
+        this.LightType = lightType ? lightType : LightType.Ambient;
+        this.DirectionComponent = direction ? direction : [-1,-1,-1];            
+        this.Color = color ? color : [0.7,0.7,0.4];            
     }
 }
 
