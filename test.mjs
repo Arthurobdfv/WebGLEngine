@@ -1,9 +1,10 @@
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 import './shaderConstants.mjs';
-import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_PROJECTION_MAT, UNIFORM_TEXTURE_IMAGE, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource } from './shaderConstants.mjs';
+import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_LIGHT_COUNT, UNIFORM_PROJECTION_MAT, UNIFORM_TEXTURE_IMAGE, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource, multiLightSupportTexturedFragmentShaderSource, multiLightSupportTexturedVertexShaderSource } from './shaderConstants.mjs';
 import { log, glContext, ShaderProgram, compileShader,getRectangle, getCubeUVCoords, getPlaneVerts } from './glContext.mjs';
 import loadImage from './webHelpers.mjs';
+import { Light, LightType } from './light.mjs';
 
 
 
@@ -37,12 +38,17 @@ try {
   contextVariables.push({name: "u_color", uniform: true, type: "v4", value: null});
   contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, type: "v2", value: null});
   contextVariables.push({name: UNIFORM_TEXTURE_IMAGE, uniform: true, value: null});
+  contextVariables.push({name: UNIFORM_LIGHT_COUNT, uniform: true, value: 16})
 
 
   UNIFORM_TEXTURE_IMAGE
   var contextVariableValues = {}; 
-  contextVariables.forEach(e => contextVariableValues[e.name] = { value: null, type: e.type } );
+  contextVariables.forEach(e => contextVariableValues[e.name] = { value: e.value, type: e.type } );
   var testProgram = new ShaderProgram(basicLitVertexShaderSource, basicLitFragShaderSource, context, contextVariables, "Basic_Lit_Shader_Program");
+
+  var multiLightSupportProgram = new ShaderProgram(multiLightSupportTexturedVertexShaderSource, multiLightSupportTexturedFragmentShaderSource, context, contextVariables, "Multiple_Lights_Support_Program");
+
+
   var basicLitShaderProgram = testProgram.getProgram();
   log(`Webgl Errors: ${context.getError()}`);
   log(`Webgl Errors: ${context.getError()}`);
@@ -205,8 +211,10 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
 
 
 
-  var cube1 = setupCube(vao, rectVerts, context, vaoTransform, testProgram);
+  var cube1 = setupCube(vao, rectVerts, context, vaoTransform, multiLightSupportProgram);
   var light = setupCube(lightVao, lightVerts, context, lightTransform, testProgram);
+  var lightComponent = new Light(LightType.Point, objectsToDraw[light].transform.getPos());
+  lightsInScene.push(light);
   var floorPlane = setupCube(floorPlaneVao, floorPlaneVerts, context, floorPlaneTransform, testProgram);
   
   switchProgram(texturedProgram.getProgram());
@@ -282,11 +290,15 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     var test = cameraMvp.toMvp();
     var test2 = 1;
     var tick = 0;
-    function mainDraw(){
-    tick = (tick + 1) % 60;
-    if(tick == 0){
-    //log(`Webgl Errors: ${context.getError()}`);
-    }
+
+
+
+
+  function mainDraw(){
+      tick = (tick + 1) % 60;
+      if(tick == 0){
+      //log(`Webgl Errors: ${context.getError()}`);
+      }
     
 
     contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
@@ -306,6 +318,8 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     var lightTransform = objectsToDraw[light].transform.getPos();
     //context.uniform3f(uniform_LightPositionLocation, lightTransform[0], lightTransform[1], lightTransform[2]);
     contextVariableValues["u_lightPos"].value = new Float32Array([lightTransform[0], lightTransform[1], lightTransform[2]]);
+
+    
     t[2] = -600;
     t[1] = -100;
     mvp.position(t[0], t[1], t[2]);
