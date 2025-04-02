@@ -18,6 +18,8 @@ export function lights(number) {
   return `${UNIFORM_LIGHT_ARRAY}[${number}]`
 }
 
+export const MAX_PER_OBJECT_LIGHTS = 8;
+
 
 export const basicLitFragShaderSource = `#version 300 es
  
