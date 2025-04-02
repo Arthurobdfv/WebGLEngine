@@ -1,7 +1,7 @@
 import './matrix.mjs';
 import { mat } from './matrix.mjs';
 import './shaderConstants.mjs';
-import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, UNIFORM_CAMERA_MAT, UNIFORM_LIGHT_COUNT, UNIFORM_PROJECTION_MAT, UNIFORM_TEXTURE_IMAGE, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource, multiLightSupportTexturedFragmentShaderSource, multiLightSupportTexturedVertexShaderSource } from './shaderConstants.mjs';
+import { ATTRIB_NORMAL, ATTRIB_POSITION, ATTRIB_TEXTURE_COORD, ATTRIB_VERTEX_COLOR, MAX_PER_OBJECT_LIGHTS, UNIFORM_CAMERA_MAT, UNIFORM_LIGHT_ARRAY, UNIFORM_LIGHT_COUNT, UNIFORM_PROJECTION_MAT, UNIFORM_TEXTURE_IMAGE, UNIFORM_TRANSFORMATION_MAT, basicLitFragShaderSource, basicLitTexturedFragShaderSource, basicLitTexturedVertexShaderSource, basicLitVertexShaderSource, multiLightSupportTexturedFragmentShaderSource, multiLightSupportTexturedVertexShaderSource } from './shaderConstants.mjs';
 import { log, glContext, ShaderProgram, compileShader,getRectangle, getCubeUVCoords, getPlaneVerts } from './glContext.mjs';
 import loadImage from './webHelpers.mjs';
 import { Light, LightType } from './light.mjs';
@@ -39,6 +39,7 @@ try {
   contextVariables.push({name: ATTRIB_TEXTURE_COORD, uniform: false, type: "v2", value: null});
   contextVariables.push({name: UNIFORM_TEXTURE_IMAGE, uniform: true, value: null});
   contextVariables.push({name: UNIFORM_LIGHT_COUNT, uniform: true, value: 16})
+  contextVariables.push({name: UNIFORM_LIGHT_ARRAY, uniform: true, value: null})
 
 
   UNIFORM_TEXTURE_IMAGE
@@ -302,6 +303,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     
 
     contextVariableValues[UNIFORM_TEXTURE_IMAGE].value = 0;
+    contextVariableValues[UNIFORM_LIGHT_ARRAY].value = lightsInScene;
     
     switchProgram(basicLitShaderProgram)  
     
