@@ -374,7 +374,9 @@ var frameCount = 0;
   
     drawFunction();
 
-    requestAnimationFrame(mainDraw)
+    if(frames == 0 || frameCount <= frames){
+      requestAnimationFrame(mainDraw)
+    }
   }
   mainDraw(5);
 
