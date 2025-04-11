@@ -294,8 +294,16 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
 
 
 
-
-  function mainDraw(){
+var frameCount = 0;
+  function mainDraw(frames = 0){
+    if(frames != 0){
+      if(frameCount <= frames){
+        frames++;
+      }
+      else {
+        return;
+      }
+    }
       tick = (tick + 1) % 60;
       if(tick == 0){
       //log(`Webgl Errors: ${context.getError()}`);
@@ -336,6 +344,8 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     contextVariableValues[UNIFORM_CAMERA_MAT].value = screenPlaneTransform.inverse();
     screenPlaneTransform.rotation(basePlaneRotation[0], basePlaneRotation[1], basePlaneRotation[2]);
     screenPlaneTransform.scale(-1,1,1);
+    log(`targetTexture: w:{targetTextureWidth}, h:{targetTextureheight}`);
+    log(`Canvas: w:{canvas.width}, h:{canvas.height}`);
     aspect = bindAndClear(defaultTexture,fb, [targetTextureWidth, targetTextureHeight]);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
@@ -352,8 +362,10 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     context.bindFramebuffer(context.FRAMEBUFFER, null);
     context.bindTexture(context.TEXTURE_2D, targetTexture);
     if(resizeCanvasToDisplaySize(canvas)){
+      log(`Needs resize`);
       context.viewport(0,0, canvas.width, canvas.height);
       aspect = context.canvas.width / context.canvas.height;
+      log(`Canvas: w:{canvas.width}, h:{canvas.height}`);
     } 
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
     contextVariableValues[UNIFORM_PROJECTION_MAT].value = projectionMatrix.toMvp(0);
@@ -364,7 +376,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
 
     requestAnimationFrame(mainDraw)
   }
-  mainDraw();
+  mainDraw(5);
 
   
   function drawFunction(programToUse = null){
