@@ -295,15 +295,7 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
 
 
 var frameCount = 0;
-  function mainDraw(frames = 0){
-    if(frames != 0){
-      if(frameCount <= frames){
-        frames++;
-      }
-      else {
-        return;
-      }
-    }
+  function mainDraw(frames = -1){
       tick = (tick + 1) % 60;
       if(tick == 0){
       //log(`Webgl Errors: ${context.getError()}`);
@@ -374,8 +366,8 @@ var frameCount = 0;
   
     drawFunction();
 
-    if(frames == 0 || frameCount <= frames){
-      requestAnimationFrame(mainDraw)
+    if(frames > -1){
+      requestAnimationFrame(mainDraw(frames-1))
     }
   }
   mainDraw(5);
