@@ -260,11 +260,15 @@ function bindAndClear(textureToBind, frameBuffer, textureSizes){
     // Lookup the size the browser is displaying the canvas in CSS pixels.
     const displayWidth  = canvas.clientWidth * window.devicePixelRatio;;
     const displayHeight = canvas.clientHeight * window.devicePixelRatio;;
+
+    log(`On Resize Function: display - w:${displayWidth}, h:${displayHeight}`);
+    log(`On Resize Function: canvas - w:${canvas.width}, h:${canvas.height}`);
     
     // Check if the canvas is not the same size.
     const needResize = canvas.width  !== displayWidth ||
     canvas.height !== displayHeight;
     
+    log(`On Resize Function: needResize - ${needResize}`);
     if (needResize) {
       // Make the canvas the same size
       canvas.width  = displayWidth;
