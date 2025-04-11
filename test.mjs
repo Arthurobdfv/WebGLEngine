@@ -336,7 +336,7 @@ var frameCount = 0;
     contextVariableValues[UNIFORM_CAMERA_MAT].value = screenPlaneTransform.inverse();
     screenPlaneTransform.rotation(basePlaneRotation[0], basePlaneRotation[1], basePlaneRotation[2]);
     screenPlaneTransform.scale(-1,1,1);
-    log(`targetTexture: w:${targetTextureWidth}, h:${targetTextureheight}`);
+    log(`targetTexture: w:${targetTextureWidth}, h:${targetTextureHeight}`);
     log(`Canvas: w:${canvas.width}, h:${canvas.height}`);
     aspect = bindAndClear(defaultTexture,fb, [targetTextureWidth, targetTextureHeight]);
     projectionMatrix.scale(f/aspect, f, (near+far) * rangeInv);
